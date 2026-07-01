@@ -55,7 +55,7 @@ export type MessageId =
   | 'preguntar'
   | 'rutina-aliada'
 
-export type DurationId = 'muy-corto' | 'corto' | 'estandar'
+export type DurationId = 'mini' | 'estandar' | 'desarrollado'
 
 export type PedagogicalCompetenceId =
   | 'reconocer-emocion'
