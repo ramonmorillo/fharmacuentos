@@ -26,7 +26,7 @@ export const AGE_GROUPS: (OptionMeta<AgeGroupId> & { range: string })[] = [
     id: '9-12',
     label: '9 a 12 años',
     range: '9-12',
-    description: 'El niño o niña protagoniza decisiones, retos y autoestima.',
+    description: 'La persona protagonista toma decisiones visibles y participa en escenas concretas.',
   },
   {
     id: '13-15',
@@ -38,7 +38,7 @@ export const AGE_GROUPS: (OptionMeta<AgeGroupId> & { range: string })[] = [
     id: '16-17',
     label: '16 a 17 años',
     range: '16-17',
-    description: 'Estilo maduro: autocuidado, transición y responsabilidad progresiva.',
+    description: 'Estilo maduro: autocuidado, conversación y responsabilidades realistas.',
   },
 ]
 
@@ -112,7 +112,7 @@ export const PEDAGOGICAL_COMPETENCES: OptionMeta<PedagogicalCompetenceId>[] = [
 ]
 
 export const DURATIONS: (OptionMeta<DurationId> & { words: string })[] = [
-  { id: 'muy-corto', label: 'Muy corto', words: '~150-250 palabras', description: 'Ideal para lecturas rápidas en consulta.' },
-  { id: 'corto', label: 'Corto', words: '~300-500 palabras', description: 'Un equilibrio entre brevedad y desarrollo.' },
-  { id: 'estandar', label: 'Estándar', words: 'Longitud completa según la edad', description: 'Desarrollo narrativo completo.' },
+  { id: 'mini', label: 'Mini cuento', words: '400-600 palabras', description: 'Versión breve con escenas completas.' },
+  { id: 'estandar', label: 'Cuento estándar', words: '800-1.000 palabras', description: 'Opción recomendada por defecto.' },
+  { id: 'desarrollado', label: 'Relato desarrollado', words: '1.200-1.500 palabras', description: 'Mayor desarrollo de escenas, diálogo y acción.' },
 ]

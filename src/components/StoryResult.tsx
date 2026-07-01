@@ -63,6 +63,8 @@ function toPlainText(story: GeneratedStory, meta: DocumentMeta, generatedAt: Dat
     '',
     ...story.paragraphs,
     '',
+    'Para acompañar la lectura',
+    '',
     'Qué puede trabajar este cuento:',
     story.motivationalMessage,
   ].filter((line): line is string => Boolean(line))
@@ -166,7 +168,7 @@ export function StoryResult({ story, onRegenerate, onClear, onBackToForm }: Stor
         {/* Bloque de acompañamiento: mensaje, actividad, familia */}
         <div className="px-6 sm:px-10 py-6 bg-white space-y-4">
           <p className="text-xs uppercase tracking-widest text-brand-500 font-semibold">
-            Acompañamiento de la lectura
+            Para acompañar la lectura
           </p>
           <div className="p-3 rounded-lg bg-sun-100 text-brand-900 text-sm italic border border-sun-200">
             {currentStory.motivationalMessage}

@@ -169,7 +169,7 @@ export function StoryForm({ initialData, onGenerate, onBack }: StoryFormProps) {
           </div>
         </FieldCard>
 
-        <FieldCard title="Duración">
+        <FieldCard title="Profundidad del cuento" hint="La herramienta ajusta la extensión según la edad y la opción elegida.">
           <div className="grid sm:grid-cols-3 gap-2">
             {DURATIONS.map((d) => (
               <button
