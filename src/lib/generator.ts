@@ -41,9 +41,8 @@ function chooseTemplate(data: StoryFormData): NarrativeTemplate {
   return pick(best.length > 0 ? best : NARRATIVE_TEMPLATES)
 }
 
-const AGE_LIMITS: Record<AgeGroupId, { maxParagraphs: number; soften: (paragraph: string) => string }> = {
+const AGE_LIMITS: Record<AgeGroupId, { soften: (paragraph: string) => string }> = {
   '3-5': {
-    maxParagraphs: 5,
     soften: (p) =>
       p
         .replaceAll('equipo sanitario', 'las personas que le cuidan')
@@ -54,28 +53,85 @@ const AGE_LIMITS: Record<AgeGroupId, { maxParagraphs: number; soften: (paragraph
         .map((sentence) => sentence.replace(/(.{70,}?), /, '$1. '))
         .join(' '),
   },
-  '6-8': { maxParagraphs: 5, soften: (p) => p.replaceAll('equipo sanitario', 'las personas que le cuidan') },
-  '9-12': { maxParagraphs: 5, soften: (p) => p },
-  '13-15': { maxParagraphs: 5, soften: (p) => p.replaceAll('animales sabios', 'personas de confianza') },
-  '16-17': { maxParagraphs: 5, soften: (p) => p.replaceAll('superhéroes', 'personas') },
+  '6-8': { soften: (p) => p.replaceAll('equipo sanitario', 'las personas que le cuidan') },
+  '9-12': { soften: (p) => p },
+  '13-15': { soften: (p) => p.replaceAll('animales sabios', 'personas de confianza') },
+  '16-17': { soften: (p) => p.replaceAll('superhéroes', 'personas') },
 }
 
 function applyDuration(paragraphs: string[], data: StoryFormData): string[] {
-  const limit = data.duration === 'muy-corto' ? 3 : data.duration === 'corto' ? 4 : AGE_LIMITS[data.ageGroup].maxParagraphs
-  return paragraphs.slice(0, limit).map(AGE_LIMITS[data.ageGroup].soften)
+  // Las microhistorias deben conservar escena, conflicto, intento, acción y cierre.
+  // La duración suaviza el lenguaje, pero no recorta bloques narrativos obligatorios.
+  return paragraphs.map(AGE_LIMITS[data.ageGroup].soften)
 }
 
 function addExtraDetail(paragraphs: string[], extraDetails: string): string[] {
   const detail = extraDetails.trim()
   if (!detail) return paragraphs
-  const safeDetail = detail.replace(/\b\d+\s?(mg|ml|mcg|g|comprimidos?|cápsulas?)\b/gi, 'un detalle que conviene revisar')
+  const safeDetail = detail
+    .replace(/\b\d+\s?(mg|ml|mcg|g|comprimidos?|cápsulas?)\b/gi, 'un detalle que conviene revisar')
+    .replace(/\b(dosis|medicamento exacto|inyecta|toma cada)\b/gi, 'detalle de cuidado')
+    .replace(SLASH_PATTERN, 'persona')
   const copy = [...paragraphs]
   copy.splice(Math.max(1, copy.length - 1), 0, `Detalle para personalizar la lectura: ${safeDetail}.`)
   return copy
 }
 
+
+function capitalizeName(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toLocaleUpperCase('es-ES') + part.slice(1))
+    .join(' ')
+}
+
+function buildNarrative(template: NarrativeTemplate, context: NarrativeContext): { paragraphs: string[] } {
+  return {
+    paragraphs: [
+      template.openingScene(context),
+      template.challengeScene(context),
+      template.failedAttempt(context),
+      template.companionDialogue(context),
+      template.protagonistAction(context),
+      template.realisticOutcome(context),
+      template.closingImage(context),
+    ],
+  }
+}
+
+const FORBIDDEN_PHRASES = [
+  'cada pequeño paso cuenta',
+  'aprendió que',
+  'se dio cuenta de que',
+  'pedir ayuda también es ser valiente',
+  'le ayudó a decidir aprender',
+  'de un tiempo a esta parte',
+  'proceso no lineal',
+  'autonomía progresiva',
+  'herramienta de apoyo emocional',
+]
+
+const CLINICAL_PATTERN = /\b(\d+\s?(mg|ml|mcg|g)|dosis|comprimido|cápsula|inyecta|toma cada|medicamento exacto)\b/i
+const SLASH_PATTERN = /\b\p{L}+\/[a-záéíóúñ]+\b/iu
+
+function validateStory({ title, paragraphs, activity, template, context }: { title: string; paragraphs: string[]; activity?: string; template: NarrativeTemplate; context: NarrativeContext }): { ok: boolean; reasons: string[] } {
+  const text = [title, ...paragraphs, activity ?? ''].join(' ')
+  const lowerText = text.toLocaleLowerCase('es-ES')
+  const reasons: string[] = []
+  if (!title.includes(context.name) && context.name !== 'Protagonista') reasons.push('El título no contiene el nombre capitalizado.')
+  if (context.name !== capitalizeName(context.name)) reasons.push('El nombre no está capitalizado.')
+  if (!template.actionWords.some((word) => lowerText.includes(word))) reasons.push('Falta una acción concreta del protagonista.')
+  if (FORBIDDEN_PHRASES.some((phrase) => lowerText.includes(phrase))) reasons.push('Aparece una frase prohibida o repetitiva.')
+  if (SLASH_PATTERN.test(text)) reasons.push('Aparece lenguaje con barras.')
+  if (activity && !lowerText.includes(context.competenceLabel.toLocaleLowerCase('es-ES').split(' ')[0])) reasons.push('La actividad no está conectada con la competencia.')
+  if (!template.requiredElements.some((element) => lowerText.includes(element))) reasons.push('No aparecen elementos del estilo elegido.')
+  if (CLINICAL_PATTERN.test(text)) reasons.push('Aparecen dosis, medicamentos o instrucciones clínicas.')
+  return { ok: reasons.length === 0, reasons }
+}
+
 export function generateStory(data: StoryFormData): GeneratedStory {
-  const name = data.protagonistName.trim() || 'nuestro protagonista'
+  const name = capitalizeName(data.protagonistName.trim() || 'Protagonista')
   const world = STYLE_WORLDS[data.style]
   const template = chooseTemplate(data)
   const context: NarrativeContext = {
@@ -91,15 +147,37 @@ export function generateStory(data: StoryFormData): GeneratedStory {
     extraDetail: data.extraDetails.trim() || undefined,
   }
 
-  const paragraphs = applyDuration(addExtraDetail(template.paragraphs(context), data.extraDetails), data)
-  const familyQuestion = template.question(context)
+  const storyParts = buildNarrative(template, context)
+  const paragraphs = applyDuration(addExtraDetail(storyParts.paragraphs, data.extraDetails), data)
+  const familyQuestion = template.conversationQuestion(context)
   const activity = data.includeActivity ? template.activity(context) : undefined
   const parentMessage = data.includeParentMessage ? template.caregiverMessage(context) : undefined
+  const title = template.title(context)
+  const validation = validateStory({ title, paragraphs, activity, template, context })
+  if (!validation.ok) {
+    const alternative = chooseTemplate({ ...data, style: data.style })
+    const alternativeParts = buildNarrative(alternative, context)
+    const alternativeParagraphs = applyDuration(addExtraDetail(alternativeParts.paragraphs, data.extraDetails), data)
+    const alternativeTitle = alternative.title(context)
+    const alternativeValidation = validateStory({ title: alternativeTitle, paragraphs: alternativeParagraphs, activity: data.includeActivity ? alternative.activity(context) : undefined, template: alternative, context })
+    if (alternativeValidation.ok) {
+      return {
+        title: alternativeTitle,
+        paragraphs: alternativeParagraphs,
+        motivationalMessage: `Competencia que se quiere trabajar: ${competenceLabel(data.pedagogicalCompetence)}. La historia muestra una acción concreta dentro de una escena narrativa.`,
+        closing: alternativeParagraphs[alternativeParagraphs.length - 1] ?? '',
+        activity: data.includeActivity ? alternative.activity(context) : undefined,
+        familyQuestion: alternative.conversationQuestion(context),
+        parentMessage: data.includeParentMessage ? alternative.caregiverMessage(context) : undefined,
+        disclaimer: DISCLAIMER,
+      }
+    }
+  }
 
   return {
-    title: template.title(context),
+    title,
     paragraphs,
-    motivationalMessage: `${competenceLabel(data.pedagogicalCompetence)} mediante una historia de ${template.pattern}: el protagonista prueba una acción concreta y el reto se vuelve más manejable.`,
+    motivationalMessage: `Competencia que se quiere trabajar: ${competenceLabel(data.pedagogicalCompetence)}. La historia muestra una acción concreta dentro de una escena narrativa.`,
     closing: paragraphs[paragraphs.length - 1] ?? '',
     activity,
     familyQuestion,
