@@ -53,7 +53,11 @@ body {
     position: absolute;
     inset: 0;
     width: 100%;
-    padding: 24px;
+    padding: 0;
+  }
+  #printable-story * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   .no-print {
     display: none !important;

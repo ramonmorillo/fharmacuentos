@@ -8,6 +8,7 @@ import { createDefaultFormData } from './data/defaultFormData'
 import { generateStory } from './lib/generator'
 import type { StoryTemplate } from './data/templates'
 import type { GeneratedStory, StoryFormData } from './types'
+import { APP_AUTHOR, APP_CONTACT_EMAIL, APP_CREATION_YEAR, APP_VERSION } from './data/appInfo'
 
 type View = 'welcome' | 'library' | 'form' | 'result'
 
@@ -68,9 +69,18 @@ function App() {
           />
         )}
       </main>
-      <footer className="no-print text-center text-xs text-brand-600/70 py-6">
-        FHarmacuentos no almacena datos en servidor. Toda la información introducida se pierde al recargar
-        o limpiar la página.
+      <footer className="no-print text-center text-xs text-brand-600/70 py-6 border-t border-brand-100 mt-6 space-y-1">
+        <p>
+          FHarmacuentos no almacena datos en servidor. Toda la información introducida se pierde al
+          recargar o limpiar la página.
+        </p>
+        <p>
+          © {APP_CREATION_YEAR} {APP_AUTHOR}. Todos los derechos reservados. · FHarmacuentos v{APP_VERSION}{' '}
+          · Contacto:{' '}
+          <a href={`mailto:${APP_CONTACT_EMAIL}`} className="hover:underline">
+            {APP_CONTACT_EMAIL}
+          </a>
+        </p>
       </footer>
     </div>
   )
