@@ -10,6 +10,7 @@ export function createDefaultFormData(): StoryFormData {
     emotionOther: '',
     style: 'aventurero',
     messages: ['pasos-cuentan'],
+    pedagogicalCompetence: 'crear-rutina',
     duration: 'corto',
     includeActivity: true,
     includeParentMessage: true,

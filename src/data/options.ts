@@ -4,6 +4,7 @@ import type {
   EmotionId,
   MessageId,
   OptionMeta,
+  PedagogicalCompetenceId,
   SituationId,
   StyleId,
 } from '../types'
@@ -94,6 +95,20 @@ export const MESSAGES: OptionMeta<MessageId>[] = [
   { id: 'equipo-sanitario', label: 'Mi equipo sanitario está para ayudarme' },
   { id: 'preguntar', label: 'Puedo preguntar cuando no entiendo algo' },
   { id: 'rutina-aliada', label: 'La rutina puede convertirse en una aliada' },
+]
+
+
+export const PEDAGOGICAL_COMPETENCES: OptionMeta<PedagogicalCompetenceId>[] = [
+  { id: 'reconocer-emocion', label: 'Reconocer una emoción' },
+  { id: 'pedir-ayuda', label: 'Pedir ayuda' },
+  { id: 'preparar-preguntas-consulta', label: 'Preparar preguntas para la consulta' },
+  { id: 'crear-rutina', label: 'Crear una rutina' },
+  { id: 'afrontar-revision', label: 'Afrontar una revisión' },
+  { id: 'expresar-cansancio', label: 'Expresar cansancio' },
+  { id: 'hablar-tratamiento-sin-verguenza', label: 'Hablar del tratamiento sin vergüenza' },
+  { id: 'participar-autocuidado', label: 'Participar más en su autocuidado' },
+  { id: 'compartir-dudas-familia', label: 'Compartir dudas con la familia' },
+  { id: 'celebrar-avances', label: 'Celebrar pequeños avances' },
 ]
 
 export const DURATIONS: (OptionMeta<DurationId> & { words: string })[] = [

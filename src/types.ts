@@ -57,6 +57,18 @@ export type MessageId =
 
 export type DurationId = 'muy-corto' | 'corto' | 'estandar'
 
+export type PedagogicalCompetenceId =
+  | 'reconocer-emocion'
+  | 'pedir-ayuda'
+  | 'preparar-preguntas-consulta'
+  | 'crear-rutina'
+  | 'afrontar-revision'
+  | 'expresar-cansancio'
+  | 'hablar-tratamiento-sin-verguenza'
+  | 'participar-autocuidado'
+  | 'compartir-dudas-familia'
+  | 'celebrar-avances'
+
 export interface StoryFormData {
   ageGroup: AgeGroupId
   protagonistName: string
@@ -66,6 +78,7 @@ export interface StoryFormData {
   emotionOther: string
   style: StyleId
   messages: MessageId[]
+  pedagogicalCompetence: PedagogicalCompetenceId
   duration: DurationId
   includeActivity: boolean
   includeParentMessage: boolean

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AGE_GROUPS, DURATIONS, EMOTIONS, MESSAGES, SITUATIONS, STYLES } from '../data/options'
+import { AGE_GROUPS, DURATIONS, EMOTIONS, MESSAGES, PEDAGOGICAL_COMPETENCES, SITUATIONS, STYLES } from '../data/options'
 import type { StoryFormData } from '../types'
 import { DisclaimerBanner } from './DisclaimerBanner'
 
@@ -140,6 +140,14 @@ export function StoryForm({ initialData, onGenerate, onBack }: StoryFormProps) {
 
         <FieldCard title="Estilo del cuento">
           <ChoiceGrid options={STYLES} value={data.style} onChange={(v) => update('style', v)} />
+        </FieldCard>
+
+        <FieldCard title="Competencia que se quiere trabajar" hint="Elige una competencia concreta para que el cuento tenga un foco pedagógico claro.">
+          <ChoiceGrid
+            options={PEDAGOGICAL_COMPETENCES}
+            value={data.pedagogicalCompetence}
+            onChange={(v) => update('pedagogicalCompetence', v)}
+          />
         </FieldCard>
 
         <FieldCard title="Mensaje principal" hint="Puedes seleccionar uno o varios.">
