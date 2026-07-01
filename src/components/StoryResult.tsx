@@ -126,15 +126,15 @@ export function StoryResult({ story, onRegenerate, onClear, onBackToForm }: Stor
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 py-10">
       <div className="no-print flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-brand-900">Tu cuento</h1>
-        <button onClick={onBackToForm} className="text-sm text-brand-600 hover:underline">
+        <h1 className="font-display text-2xl font-bold text-white">Tu cuento</h1>
+        <button onClick={onBackToForm} className="text-sm text-navy-300 hover:text-white">
           ← Editar formulario
         </button>
       </div>
 
       <div
         id="printable-story"
-        className="bg-white rounded-2xl border border-brand-100 shadow-sm overflow-hidden"
+        className="bg-white rounded-2xl border border-brand-100 shadow-2xl shadow-black/40 overflow-hidden"
       >
         {/* Cabecera del documento: centro, profesional y fecha */}
         <div className="bg-brand-700 text-brand-50 px-6 sm:px-8 py-4 flex items-center justify-between gap-3">
@@ -202,122 +202,122 @@ export function StoryResult({ story, onRegenerate, onClear, onBackToForm }: Stor
       <div className="no-print mt-4 flex flex-wrap gap-2">
         <button
           onClick={handleCopy}
-          className="px-4 py-2 rounded-lg border border-brand-300 text-brand-700 text-sm font-medium hover:bg-brand-50"
+          className="px-4 py-2 rounded-lg border border-navy-600 text-navy-100 text-sm font-medium hover:bg-navy-800"
         >
           {copied ? 'Copiado ✓' : 'Copiar'}
         </button>
         <button
           onClick={handlePrint}
-          className="px-4 py-2 rounded-lg border border-brand-300 text-brand-700 text-sm font-medium hover:bg-brand-50"
+          className="px-4 py-2 rounded-lg border border-navy-600 text-navy-100 text-sm font-medium hover:bg-navy-800"
         >
           Imprimir
         </button>
         <button
           onClick={handleDownloadPdf}
-          className="px-4 py-2 rounded-lg border border-brand-300 text-brand-700 text-sm font-medium hover:bg-brand-50"
+          className="px-4 py-2 rounded-lg border border-navy-600 text-navy-100 text-sm font-medium hover:bg-navy-800"
         >
           Descargar PDF
         </button>
         <button
           onClick={onRegenerate}
-          className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700"
+          className="px-4 py-2 rounded-lg bg-coral-500 text-white text-sm font-medium hover:bg-coral-600"
         >
           Generar nueva versión
         </button>
         <button
           onClick={onClear}
-          className="px-4 py-2 rounded-lg border border-coral-400 text-coral-500 text-sm font-medium hover:bg-coral-100 ml-auto"
+          className="px-4 py-2 rounded-lg border border-coral-400/60 text-coral-300 text-sm font-medium hover:bg-coral-500/10 ml-auto"
         >
           Limpiar datos
         </button>
       </div>
 
       <div className="no-print mt-8">
-        <h3 className="font-semibold text-brand-800 mb-2">Datos del documento (opcional)</h3>
-        <p className="text-sm text-brand-700/70 mb-3">
+        <h3 className="font-semibold text-white mb-2">Datos del documento (opcional)</h3>
+        <p className="text-sm text-navy-300 mb-3">
           Se muestran en la cabecera y el pie del documento imprimible/PDF. No introduzcas datos del
           paciente aquí: son datos del centro y del profesional que entrega el material.
         </p>
         <div className="grid sm:grid-cols-2 gap-3 mb-6">
           <label className="block text-sm">
-            <span className="text-brand-700 font-medium">Hospital o centro</span>
+            <span className="text-navy-200 font-medium">Hospital o centro</span>
             <input
               type="text"
               value={meta.hospitalName}
               onChange={(e) => updateMeta('hospitalName', e.target.value)}
               placeholder="Por ejemplo: Servicio de Farmacia Hospitalaria"
-              className="mt-1 w-full rounded-lg border border-brand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="mt-1 w-full rounded-lg border border-navy-600 bg-navy-900 text-navy-100 placeholder-navy-500 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400"
             />
           </label>
           <label className="block text-sm">
-            <span className="text-brand-700 font-medium">Farmacéutico/a responsable</span>
+            <span className="text-navy-200 font-medium">Farmacéutico/a responsable</span>
             <input
               type="text"
               value={meta.pharmacistName}
               onChange={(e) => updateMeta('pharmacistName', e.target.value)}
               placeholder="Nombre de quien entrega el cuento"
-              className="mt-1 w-full rounded-lg border border-brand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="mt-1 w-full rounded-lg border border-navy-600 bg-navy-900 text-navy-100 placeholder-navy-500 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400"
             />
           </label>
         </div>
 
-        <h3 className="font-semibold text-brand-800 mb-2">Editar cuento</h3>
-        <p className="text-sm text-brand-700/70 mb-3">
+        <h3 className="font-semibold text-white mb-2">Editar cuento</h3>
+        <p className="text-sm text-navy-300 mb-3">
           Ajusta el texto libremente antes de entregarlo. Los cambios se reflejan arriba al momento.
         </p>
         <div className="space-y-3">
           <label className="block text-sm">
-            <span className="text-brand-700 font-medium">Título</span>
+            <span className="text-navy-200 font-medium">Título</span>
             <input
               type="text"
               value={editable.title}
               onChange={(e) => update('title', e.target.value)}
-              className="mt-1 w-full rounded-lg border border-brand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="mt-1 w-full rounded-lg border border-navy-600 bg-navy-900 text-navy-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400"
             />
           </label>
           <label className="block text-sm">
-            <span className="text-brand-700 font-medium">Historia</span>
+            <span className="text-navy-200 font-medium">Historia</span>
             <textarea
               value={editable.body}
               onChange={(e) => update('body', e.target.value)}
               rows={10}
-              className="mt-1 w-full rounded-lg border border-brand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="mt-1 w-full rounded-lg border border-navy-600 bg-navy-900 text-navy-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400"
             />
           </label>
           <label className="block text-sm">
-            <span className="text-brand-700 font-medium">Mensaje motivacional</span>
+            <span className="text-navy-200 font-medium">Mensaje motivacional</span>
             <textarea
               value={editable.motivationalMessage}
               onChange={(e) => update('motivationalMessage', e.target.value)}
               rows={2}
-              className="mt-1 w-full rounded-lg border border-brand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="mt-1 w-full rounded-lg border border-navy-600 bg-navy-900 text-navy-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400"
             />
           </label>
           <label className="block text-sm">
-            <span className="text-brand-700 font-medium">Actividad final</span>
+            <span className="text-navy-200 font-medium">Actividad final</span>
             <textarea
               value={editable.activity}
               onChange={(e) => update('activity', e.target.value)}
               rows={2}
-              className="mt-1 w-full rounded-lg border border-brand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="mt-1 w-full rounded-lg border border-navy-600 bg-navy-900 text-navy-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400"
             />
           </label>
           <label className="block text-sm">
-            <span className="text-brand-700 font-medium">Pregunta para comentar en familia</span>
+            <span className="text-navy-200 font-medium">Pregunta para comentar en familia</span>
             <textarea
               value={editable.familyQuestion}
               onChange={(e) => update('familyQuestion', e.target.value)}
               rows={2}
-              className="mt-1 w-full rounded-lg border border-brand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="mt-1 w-full rounded-lg border border-navy-600 bg-navy-900 text-navy-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400"
             />
           </label>
           <label className="block text-sm">
-            <span className="text-brand-700 font-medium">Mensaje para madres, padres o cuidadores</span>
+            <span className="text-navy-200 font-medium">Mensaje para madres, padres o cuidadores</span>
             <textarea
               value={editable.parentMessage}
               onChange={(e) => update('parentMessage', e.target.value)}
               rows={2}
-              className="mt-1 w-full rounded-lg border border-brand-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="mt-1 w-full rounded-lg border border-navy-600 bg-navy-900 text-navy-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400"
             />
           </label>
         </div>
@@ -327,7 +327,7 @@ export function StoryResult({ story, onRegenerate, onClear, onBackToForm }: Stor
         <DisclaimerBanner text={story.disclaimer} />
       </div>
 
-      <p className="no-print text-center text-[11px] text-brand-500/70 mt-6">
+      <p className="no-print text-center text-[11px] text-navy-500 mt-6">
         FHarmacuentos v{APP_VERSION} · {APP_AUTHOR}
       </p>
     </div>

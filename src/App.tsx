@@ -69,7 +69,7 @@ function App() {
           />
         )}
       </main>
-      <footer className="no-print text-center text-xs text-brand-600/70 py-6 border-t border-brand-100 mt-6 space-y-1">
+      <footer className="no-print text-center text-xs text-navy-400 py-6 border-t border-navy-800 mt-6 space-y-1">
         <p>
           FHarmacuentos no almacena datos en servidor. Toda la información introducida se pierde al
           recargar o limpiar la página.
@@ -77,7 +77,7 @@ function App() {
         <p>
           © {APP_CREATION_YEAR} {APP_AUTHOR}. Todos los derechos reservados. · FHarmacuentos v{APP_VERSION}{' '}
           · Contacto:{' '}
-          <a href={`mailto:${APP_CONTACT_EMAIL}`} className="hover:underline">
+          <a href={`mailto:${APP_CONTACT_EMAIL}`} className="hover:underline text-navy-300">
             {APP_CONTACT_EMAIL}
           </a>
         </p>
