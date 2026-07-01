@@ -63,13 +63,13 @@ function toPlainText(story: GeneratedStory, meta: DocumentMeta, generatedAt: Dat
     '',
     ...story.paragraphs,
     '',
-    'Mensaje motivacional:',
+    'Qué puede trabajar este cuento:',
     story.motivationalMessage,
   ].filter((line): line is string => Boolean(line))
-  if (story.activity) parts.push('', 'Actividad final:', story.activity)
-  parts.push('', 'Para comentar en familia:', story.familyQuestion)
+  if (story.activity) parts.push('', 'Actividad:', story.activity)
+  parts.push('', 'Pregunta para abrir conversación:', story.familyQuestion)
   if (story.parentMessage) parts.push('', 'Mensaje para madres, padres o cuidadores:', story.parentMessage)
-  parts.push('', story.disclaimer)
+  parts.push('', 'Aviso de uso responsable:', story.disclaimer)
   return parts.join('\n')
 }
 
@@ -166,19 +166,19 @@ export function StoryResult({ story, onRegenerate, onClear, onBackToForm }: Stor
         {/* Bloque de acompañamiento: mensaje, actividad, familia */}
         <div className="px-6 sm:px-10 py-6 bg-white space-y-4">
           <p className="text-xs uppercase tracking-widest text-brand-500 font-semibold">
-            Para acompañar la lectura
+            Acompañamiento de la lectura
           </p>
           <div className="p-3 rounded-lg bg-sun-100 text-brand-900 text-sm italic border border-sun-200">
             {currentStory.motivationalMessage}
           </div>
           {currentStory.activity && (
             <div>
-              <p className="font-semibold text-brand-800 text-sm">Actividad para comentar o realizar juntos</p>
+              <p className="font-semibold text-brand-800 text-sm">Actividad</p>
               <p className="text-sm text-brand-800/90 mt-1">{currentStory.activity}</p>
             </div>
           )}
           <div>
-            <p className="font-semibold text-brand-800 text-sm">Para comentar en familia</p>
+            <p className="font-semibold text-brand-800 text-sm">Pregunta para abrir conversación</p>
             <p className="text-sm text-brand-800/90 mt-1">{currentStory.familyQuestion}</p>
           </div>
           {currentStory.parentMessage && (
@@ -195,6 +195,7 @@ export function StoryResult({ story, onRegenerate, onClear, onBackToForm }: Stor
             Farmacéutico/a responsable:{' '}
             <span className="font-medium">{meta.pharmacistName.trim() || '_______________________'}</span>
           </p>
+          <p className="font-semibold text-brand-700">Aviso de uso responsable</p>
           <p className="text-brand-600/90">{currentStory.disclaimer}</p>
         </div>
       </div>
@@ -285,7 +286,7 @@ export function StoryResult({ story, onRegenerate, onClear, onBackToForm }: Stor
             />
           </label>
           <label className="block text-sm">
-            <span className="text-navy-200 font-medium">Mensaje motivacional</span>
+            <span className="text-navy-200 font-medium">Qué puede trabajar este cuento</span>
             <textarea
               value={editable.motivationalMessage}
               onChange={(e) => update('motivationalMessage', e.target.value)}
@@ -303,7 +304,7 @@ export function StoryResult({ story, onRegenerate, onClear, onBackToForm }: Stor
             />
           </label>
           <label className="block text-sm">
-            <span className="text-navy-200 font-medium">Pregunta para comentar en familia</span>
+            <span className="text-navy-200 font-medium">Pregunta para abrir conversación</span>
             <textarea
               value={editable.familyQuestion}
               onChange={(e) => update('familyQuestion', e.target.value)}

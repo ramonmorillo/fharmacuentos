@@ -78,15 +78,16 @@ export function downloadStoryPdf(story: GeneratedStory, meta: PdfDocumentMeta = 
   addDivider(6)
 
   // Bloque de acompañamiento (separado visualmente del cuento)
-  addText('PARA ACOMPAÑAR LA LECTURA', 9, 'bold', 3)
+  addText('ACOMPAÑAMIENTO DE LA LECTURA', 9, 'bold', 3)
+  addText('Qué puede trabajar este cuento', 11, 'bold', 1)
   addText(story.motivationalMessage, 12, 'italic', 5)
 
   if (story.activity) {
-    addText('Actividad para comentar o realizar juntos', 11, 'bold', 1)
+    addText('Actividad', 11, 'bold', 1)
     addText(story.activity, 11, 'normal', 4)
   }
 
-  addText('Para comentar en familia', 11, 'bold', 1)
+  addText('Pregunta para abrir conversación', 11, 'bold', 1)
   addText(story.familyQuestion, 11, 'normal', 4)
 
   if (story.parentMessage) {
@@ -98,6 +99,7 @@ export function downloadStoryPdf(story: GeneratedStory, meta: PdfDocumentMeta = 
 
   // Pie: profesional responsable y aviso
   addText(`Farmacéutico/a responsable: ${meta.pharmacistName || '_______________________'}`, 10, 'normal', 4)
+  addText('Aviso de uso responsable', 10, 'bold', 1)
   addText(story.disclaimer, 9, 'italic', 0)
 
   const safeTitle = story.title.toLowerCase().replace(/[^a-z0-9áéíóúñü\s-]/gi, '').trim().replace(/\s+/g, '-')
