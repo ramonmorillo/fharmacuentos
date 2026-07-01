@@ -1,5 +1,5 @@
 import { PEDAGOGICAL_COMPETENCES } from '../data/options'
-import { COMPETENCE_ACTIONS, NARRATIVE_TEMPLATES, type NarrativeContext, type NarrativeTemplate } from '../data/narrativeTemplates'
+import { buildSceneTexts, COMPETENCE_ACTIONS, pickStyleObject, STYLE_ELEMENTS, type NarrativeContext, type StyleObject } from '../data/narrativeTemplates'
 import { EMOTION_CONTENT, SITUATION_CONTENT, STYLE_WORLDS } from '../data/storyContent'
 import type { AgeGroupId, DurationId, GeneratedStory, StoryFormData } from '../types'
 
@@ -33,36 +33,41 @@ const SLASH_PATTERN = /\b\p{L}+\/[a-záéíóúñ]+\b/iu
 const CLINICAL_PATTERN_G = /\b(\d+\s?(mg|ml|mcg|g)|dosis|comprimidos?|cápsulas?|inyecta|toma cada|medicamento exacto|pauta clínica)\b/gi
 const SLASH_PATTERN_G = /\b\p{L}+\/[a-záéíóúñ]+\b/giu
 
-function pick<T>(items: T[]): T { return items[Math.floor(Math.random() * items.length)] }
 function wordCount(text: string): number { return (text.match(/[\p{L}\p{N}]+/gu) ?? []).length }
 function competenceLabel(id: StoryFormData['pedagogicalCompetence']): string { return PEDAGOGICAL_COMPETENCES.find((c) => c.id === id)?.label ?? 'Trabajar una competencia concreta' }
 function normalizeEmotion(data: StoryFormData): string { return data.emotion === 'otra' && data.emotionOther.trim() ? data.emotionOther.trim().toLowerCase() : EMOTION_CONTENT[data.emotion].acknowledge }
 function situationText(data: StoryFormData): string { return data.situation === 'otra' && data.situationOther.trim() ? data.situationOther.trim() : SITUATION_CONTENT[data.situation].challenge }
 function capitalizeName(name: string): string { return name.toLocaleLowerCase('es-ES').split(/\s+/).filter(Boolean).map((p) => p.charAt(0).toLocaleUpperCase('es-ES') + p.slice(1)).join(' ') }
-function replaceTokens(text: string, ctx: NarrativeContext): string {
+
+interface SceneVars { object: StyleObject; place: string; elementsList: string }
+
+function replaceTokens(text: string, ctx: NarrativeContext, scene?: SceneVars): string {
   const comp = COMPETENCE_ACTIONS[ctx.competence]
-  return text.replaceAll('{{name}}', ctx.name).replaceAll('{{situationText}}', ctx.situationText).replaceAll('{{emotion}}', ctx.emotion).replaceAll('{{companion}}', ctx.companion).replaceAll('{{competenceAction}}', comp.action).replaceAll('{{competenceArtifact}}', comp.artifact)
+  let result = text
+    .replaceAll('{{name}}', ctx.name)
+    .replaceAll('{{situationText}}', ctx.situationText)
+    .replaceAll('{{emotion}}', ctx.emotion)
+    .replaceAll('{{companion}}', ctx.companion)
+    .replaceAll('{{competenceAction}}', comp.action)
+    .replaceAll('{{competenceArtifact}}', comp.artifact)
+  if (scene) {
+    const isFeminine = scene.object.gender === 'f'
+    result = result
+      .replaceAll('{{anObject}}', `${isFeminine ? 'una' : 'un'} ${scene.object.word}`)
+      .replaceAll('{{theObject}}', `${isFeminine ? 'la' : 'el'} ${scene.object.word}`)
+      .replaceAll('{{TheObject}}', `${isFeminine ? 'La' : 'El'} ${scene.object.word}`)
+      .replaceAll('{{storedForm}}', isFeminine ? 'guardada' : 'guardado')
+      .replaceAll('{{objPronoun}}', isFeminine ? 'la' : 'lo')
+      .replaceAll('{{place}}', scene.place)
+      .replaceAll('{{elementsList}}', scene.elementsList)
+  }
+  return result
 }
 
 function targetRange(ageGroup: AgeGroupId, duration: DurationId): { min: number; max: number } {
   const depth = DEPTH_WORD_RANGES[duration]
   const age = AGE_WORD_RANGES[ageGroup]
   return { min: Math.min(depth.min, age.max), max: Math.min(depth.max, age.max) }
-}
-
-function chooseTemplate(data: StoryFormData, excluded = new Set<string>()): NarrativeTemplate {
-  const scored = NARRATIVE_TEMPLATES.filter((t) => !excluded.has(t.id)).map((template) => {
-    let score = 0
-    if (template.ageGroup === data.ageGroup) score += 5
-    if (template.style === data.style) score += 7
-    if (template.competence === data.pedagogicalCompetence) score += 9
-    if (template.situation === data.situation) score += 3
-    if (template.situation === 'any') score += 1
-    return { template, score }
-  }).sort((a, b) => b.score - a.score)
-  const bestScore = scored[0]?.score ?? 0
-  const best = scored.filter((item) => item.score === bestScore).map((item) => item.template)
-  return pick(best.length ? best : NARRATIVE_TEMPLATES)
 }
 
 type AgeBand = 'infantil' | 'media' | 'adolescente'
@@ -195,9 +200,12 @@ const REFLECTION_POOL: Record<AgeBand, (ctx: NarrativeContext) => string[]> = {
   ],
 }
 
-function buildNarrative(template: NarrativeTemplate, ctx: NarrativeContext, duration: DurationId): string[] {
+function buildNarrative(ctx: NarrativeContext, object: StyleObject, duration: DurationId): string[] {
   const range = targetRange(ctx.ageGroup, duration)
-  const paragraphs = template.scenes.map((scene, i) => expandScene(replaceTokens(scene, ctx), i, ctx, range))
+  const styleData = STYLE_ELEMENTS[ctx.style]
+  const scene: SceneVars = { object, place: styleData.place, elementsList: styleData.elements.slice(0, 4).join(', ') }
+  const rawScenes = buildSceneTexts(ctx.style)
+  const paragraphs = rawScenes.map((raw, i) => expandScene(replaceTokens(raw, ctx, scene), i, ctx, range))
 
   // 1) Ganar extensión real con escenas adicionales únicas (cada una aparece como máximo una vez).
   if (range.min >= 600) {
@@ -223,8 +231,8 @@ function buildNarrative(template: NarrativeTemplate, ctx: NarrativeContext, dura
 
 function sanitize(text: string): string { return text.replaceAll(SLASH_PATTERN_G, 'persona').replaceAll(CLINICAL_PATTERN_G, 'detalle de cuidado') }
 
-function validateStory(args: { title: string; paragraphs: string[]; activity: string; familyQuestion: string; parentMessage: string; template: NarrativeTemplate; context: NarrativeContext; duration: DurationId }): { ok: boolean; reasons: string[] } {
-  const { title, paragraphs, activity, familyQuestion, parentMessage, template, context, duration } = args
+function validateStory(args: { title: string; paragraphs: string[]; activity: string; familyQuestion: string; parentMessage: string; requiredElements: string[]; context: NarrativeContext; duration: DurationId }): { ok: boolean; reasons: string[] } {
+  const { title, paragraphs, activity, familyQuestion, parentMessage, requiredElements, context, duration } = args
   const storyText = [title, ...paragraphs].join(' ')
   const fullText = [storyText, activity, familyQuestion, parentMessage, DISCLAIMER].join(' ')
   const lowerStory = storyText.toLocaleLowerCase('es-ES')
@@ -237,7 +245,7 @@ function validateStory(args: { title: string; paragraphs: string[]; activity: st
   if (context.ageGroup !== '13-15' && context.ageGroup !== '16-17' && lowerStory.includes('equipo sanitario')) reasons.push('Lenguaje sanitario adulto en narración infantil.')
   if (title.includes(context.name.toLocaleUpperCase('es-ES')) && context.name.length > 1) reasons.push('Nombre en mayúsculas completas.')
   if (SLASH_PATTERN.test(fullText)) reasons.push('Aparece lenguaje con barras.')
-  if (!template.requiredElements.some((element) => lowerStory.includes(element))) reasons.push('No aparecen elementos propios del estilo.')
+  if (!requiredElements.some((element) => lowerStory.includes(element))) reasons.push('No aparecen elementos propios del estilo.')
   if (!COMPETENCE_ACTIONS[context.competence].keywords.some((word) => [activity, familyQuestion, parentMessage].join(' ').toLocaleLowerCase('es-ES').includes(word))) reasons.push('Actividad o acompañamiento poco conectado con la competencia.')
   if (CLINICAL_PATTERN.test(fullText)) reasons.push('Aparecen dosis, medicamentos concretos o instrucciones clínicas.')
   if (![activity, familyQuestion, parentMessage, DISCLAIMER].every(Boolean)) reasons.push('Faltan apartados finales obligatorios.')
@@ -249,22 +257,24 @@ export function generateStory(data: StoryFormData): GeneratedStory {
   const name = capitalizeName(data.protagonistName.trim() || 'Protagonista')
   const world = STYLE_WORLDS[data.style]
   const ctx: NarrativeContext = { name, ageGroup: data.ageGroup, situation: data.situation, situationText: sanitize(situationText(data)), emotion: normalizeEmotion(data), style: data.style, competence: data.pedagogicalCompetence, competenceLabel: competenceLabel(data.pedagogicalCompetence), companion: world.companionName || 'una persona de confianza', extraDetail: data.extraDetails.trim() || undefined }
-  const excluded = new Set<string>()
+  const requiredElements = STYLE_ELEMENTS[ctx.style].elements
   for (let attempt = 0; attempt < 3; attempt += 1) {
-    const template = chooseTemplate(data, excluded)
-    excluded.add(template.id)
+    // El objeto y la combinación de frases se sortean en cada intento (y en cada "Generar nueva
+    // versión"), siempre dentro del estilo elegido por quien usa la herramienta: así dos cuentos
+    // con las mismas opciones no salen idénticos, y el estilo nunca se sustituye por otro.
+    const object = pickStyleObject(ctx.style)
     const title = `${ctx.name} y ${COMPETENCE_ACTIONS[ctx.competence].artifact}`
-    const paragraphs = buildNarrative(template, ctx, data.duration).map(sanitize)
+    const paragraphs = buildNarrative(ctx, object, data.duration).map(sanitize)
     const competenceContent = COMPETENCE_ACTIONS[ctx.competence]
     const activity = competenceContent.activity
     const familyQuestion = competenceContent.question
     const parentMessage = competenceContent.caregiver
-    const validation = validateStory({ title, paragraphs, activity, familyQuestion, parentMessage, template, context: ctx, duration: data.duration })
+    const validation = validateStory({ title, paragraphs, activity, familyQuestion, parentMessage, requiredElements, context: ctx, duration: data.duration })
     if (validation.ok || attempt === 2) {
       if (!validation.ok) console.warn('FHarmacuentos: validación narrativa con advertencias', validation.reasons)
       return { title, paragraphs, motivationalMessage: `Qué puede trabajar este cuento: ${ctx.competenceLabel}.`, closing: paragraphs.at(-1) ?? '', activity, familyQuestion, parentMessage, disclaimer: DISCLAIMER }
     }
-    console.warn('FHarmacuentos: plantilla descartada por validación', template.id, validation.reasons)
+    console.warn('FHarmacuentos: intento descartado por validación', validation.reasons)
   }
   throw new Error('No se pudo generar el cuento')
 }
