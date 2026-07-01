@@ -16,7 +16,7 @@ export interface SituationContent {
 export const SITUATION_CONTENT: Record<SituationId, SituationContent> = {
   'cuesta-tomar': {
     challenge:
-      'algunos días el momento de seguir su tratamiento se le hacía cuesta arriba, y le costaba encontrar las ganas',
+      'le cuesta encontrar las ganas para seguir su tratamiento, y algunos días ese momento se le hace cuesta arriba',
     smallStep:
       'probar pequeños trucos propios: elegir un vaso favorito, un horario que encajara mejor con su día, o pedir compañía justo en ese momento, sin prisa y sin tener que hacerlo perfecto',
     familyQuestion:
@@ -24,83 +24,83 @@ export const SITUATION_CONTENT: Record<SituationId, SituationContent> = {
   },
   'olvida-tratamiento': {
     challenge:
-      'con tantas cosas en la cabeza, algunas veces el tratamiento se le olvidaba, y luego se sentía un poco mal por ello',
+      'se le olvida el tratamiento entre tantas cosas, y después se siente un poco mal por eso',
     smallStep:
       'inventar una señal propia para recordarlo: una alarma con un sonido especial, un dibujo pegado en un lugar visible o una rutina que siempre iba justo antes',
     familyQuestion: '¿Qué señal o recordatorio nos podría ayudar a no olvidarlo, sin que se convierta en un agobio?',
   },
   'miedo-hospital': {
     challenge:
-      'la idea de ir al hospital le ponía nervioso/a, con esa sensación de no saber muy bien qué iba a pasar',
+      'la idea de ir al hospital le llena de nervios, con esa sensación de no saber muy bien qué va a pasar',
     smallStep:
       'aprender que se puede preguntar todo lo que se quiera antes y durante la visita, y que llevar algo que dé tranquilidad puede ayudar mucho',
-    familyQuestion: '¿Hay algo que le ayude a sentirse más tranquilo/a antes de ir al hospital?',
+    familyQuestion: '¿Hay algo que le ayude a sentirse con más calma antes de ir al hospital?',
   },
   'miedo-pinchazos': {
     challenge:
-      'solo con pensar en pruebas o pinchazos, el cuerpo se le ponía en alerta, como si sonara una alarma por dentro',
+      'solo con pensar en pruebas o pinchazos, el cuerpo se le pone en alerta, como si sonara una alarma por dentro',
     smallStep:
       'usar trucos que ya usan otros niños y niñas: respirar despacio contando hasta cinco, apretar la mano de alguien de confianza o mirar hacia otro lado mientras se cuenta una historia',
     familyQuestion: '¿Qué truco de respiración o distracción le gustaría tener preparado para la próxima vez?',
   },
   'cansancio-cuidarse': {
     challenge:
-      'llevaba tiempo cuidándose y, aunque lo hacía muy bien, empezaba a sentir un cansancio de fondo, como una mochila que pesa un poco más cada día',
+      'lleva tiempo cuidándose y, aunque lo hace muy bien, empieza a sentir un cansancio de fondo, como una mochila que pesa un poco más cada día',
     smallStep:
       'permitirse tener días de bajón sin sentirse culpable, y compartir ese cansancio con alguien del equipo sanitario o de la familia en lugar de guardárselo',
     familyQuestion: '¿Cómo podemos ayudarle a aligerar esa mochila cuando note que pesa más de lo normal?',
   },
   verguenza: {
     challenge:
-      'a veces sentía vergüenza al pensar que era diferente por su tratamiento, y prefería que nadie lo supiera',
+      'a veces siente vergüenza al pensar que es diferente por su tratamiento, y prefiere que nadie lo sepa',
     smallStep:
-      'descubrir que muchas otras personas también llevan su propio "equipo especial" para cuidarse, y que eso no lo/la hace diferente en lo importante',
-    familyQuestion: '¿Con quién se sentiría cómodo/a compartiendo esto, si algún día le apetece hacerlo?',
+      'descubrir que muchas otras personas también llevan su propio "equipo especial" para cuidarse, y que eso no la hace diferente en lo importante',
+    familyQuestion: '¿Con quién se sentiría cómoda compartiendo esto, si algún día le apetece hacerlo?',
   },
   'quiere-autonomia': {
     challenge:
-      'sentía que ya tenía edad para encargarse de más cosas de su cuidado, aunque todavía no sabía muy bien por dónde empezar',
+      'siente que ya tiene edad para encargarse de más cosas de su cuidado, aunque todavía no sabe muy bien por dónde empezar',
     smallStep:
       'ir asumiendo pequeñas responsabilidades, una por una, celebrando cada una como una victoria antes de pasar a la siguiente',
-    familyQuestion: '¿Qué pequeña tarea de su cuidado le gustaría empezar a hacer por sí mismo/a?',
+    familyQuestion: '¿Qué pequeña tarea de su cuidado le gustaría empezar a hacer por su cuenta?',
   },
   'tratamiento-nuevo': {
     challenge:
-      'empezar algo nuevo siempre trae dudas, y esta vez tocaba adaptarse a un tratamiento distinto al que ya conocía',
+      'empezar algo nuevo siempre trae dudas, y esta vez toca adaptarse a un tratamiento distinto al que ya conocía',
     smallStep:
-      'darse permiso para ir aprendiendo poco a poco, preguntando todas las dudas al equipo sanitario sin miedo a parecer pesado/a',
+      'darse permiso para ir aprendiendo poco a poco, preguntando todas las dudas al equipo sanitario sin miedo a parecer pesada',
     familyQuestion: '¿Qué preguntas nos gustaría llevar preparadas a la próxima cita sobre esta novedad?',
   },
   'cambio-tratamiento': {
     challenge:
-      'después de acostumbrarse a una forma de cuidarse, el cambio a otra distinta le generaba un poco de inseguridad',
+      'después de acostumbrarse a una forma de cuidarse, el cambio a otra distinta le genera un poco de inseguridad',
     smallStep:
       'recordar que ya ha sabido adaptarse antes, y que el equipo sanitario está para acompañar cada ajuste, paso a paso',
-    familyQuestion: '¿Qué le ayudaría a sentirse más seguro/a mientras se acostumbra a esta novedad?',
+    familyQuestion: '¿Qué le ayudaría a sentirse con más seguridad mientras se acostumbra a esta novedad?',
   },
   'revision-proxima': {
     challenge:
-      'con la revisión cada vez más cerca, le rondaban por la cabeza muchas preguntas y algo de intriga',
+      'con la revisión cada vez más cerca, le rondan por la cabeza muchas preguntas y algo de intriga',
     smallStep:
       'anotar en una libreta todo lo que quiera contar o preguntar en la consulta, para no quedarse con nada dentro',
     familyQuestion: '¿Qué le gustaría contarle al equipo sanitario en la próxima revisión?',
   },
   'dificultad-hablar': {
     challenge:
-      'había cosas que le rondaban por dentro, pero encontrar las palabras para contarlas no siempre era fácil',
+      'hay cosas que le rondan por dentro, pero encontrar las palabras para contarlas no siempre es fácil',
     smallStep:
       'probar otras formas de expresarlo además de hablar: dibujar, escribir, o simplemente decir "hoy no tengo ganas de hablar de esto, pero quiero que lo sepas"',
     familyQuestion: '¿Qué forma de contar las cosas le resulta más cómoda: hablar, escribir, dibujar u otra?',
   },
   'pedir-ayuda-positivo': {
     challenge:
-      'pensaba que pedir ayuda era una señal de no saber hacer las cosas por sí mismo/a, así que prefería no pedirla',
+      'piensa que pedir ayuda es una señal de no saber hacer las cosas por su cuenta, así que prefiere no pedirla',
     smallStep:
       'descubrir que las personas más fuertes de las historias también piden ayuda, y que eso forma parte de cuidarse bien',
     familyQuestion: '¿A quién le resulta más fácil pedirle ayuda cuando la necesita?',
   },
   otra: {
-    challenge: 'atravesaba un momento que le costaba un poco más de lo habitual',
+    challenge: 'atraviesa un momento que le cuesta un poco más de lo habitual',
     smallStep:
       'ir dando pasos pequeños, apoyándose en las personas de confianza que tiene cerca, sin exigirse tener todas las respuestas',
     familyQuestion: '¿Qué le ayudaría ahora mismo a sentirse un poco mejor?',
@@ -113,16 +113,16 @@ export interface EmotionContent {
 }
 
 export const EMOTION_CONTENT: Record<EmotionId, EmotionContent> = {
-  miedo: { acknowledge: 'sintió un nudo de miedo, y eso es algo que le pasa a mucha gente valiente' },
-  tristeza: { acknowledge: 'notó una tristeza pequeña, como una nube gris que a veces se posa sin avisar' },
-  enfado: { acknowledge: 'sintió un enfado que le hervía por dentro, con ganas de que las cosas fueran distintas' },
-  verguenza: { acknowledge: 'notó las mejillas calientes de vergüenza, y prefería no llamar la atención' },
-  cansancio: { acknowledge: 'sintió ese cansancio que no se cura durmiendo, sino descansando por dentro' },
-  confusion: { acknowledge: 'se hizo un lío de ideas, sin tener muy claro qué pensar de todo aquello' },
-  preocupacion: { acknowledge: 'le rondaba una preocupación, dando vueltas y vueltas como una noria' },
-  desmotivacion: { acknowledge: 'sintió que las ganas se le habían quedado sin pilas por un rato' },
-  ilusion: { acknowledge: 'notó una chispa de ilusión por aprender algo nuevo sobre sí mismo/a' },
-  otra: { acknowledge: 'sintió una mezcla de emociones difícil de poner en palabras' },
+  miedo: { acknowledge: 'un nudo de miedo en el estómago' },
+  tristeza: { acknowledge: 'una tristeza pequeña, como una nube gris que se posa sin avisar' },
+  enfado: { acknowledge: 'un enfado que le hierve por dentro' },
+  verguenza: { acknowledge: 'las mejillas calientes de vergüenza' },
+  cansancio: { acknowledge: 'un cansancio que no se cura durmiendo' },
+  confusion: { acknowledge: 'un lío de ideas en la cabeza' },
+  preocupacion: { acknowledge: 'una preocupación que da vueltas y vueltas como una noria' },
+  desmotivacion: { acknowledge: 'las ganas bajas, como si se hubieran quedado sin pilas' },
+  ilusion: { acknowledge: 'una chispa de ilusión por aprender algo nuevo' },
+  otra: { acknowledge: 'una mezcla de emociones difícil de poner en palabras' },
 }
 
 export interface MessageContent {
@@ -157,7 +157,7 @@ export const STYLE_WORLDS: Record<StyleId, StyleWorld> = {
   aventurero: {
     setting: 'un camino lleno de senderos por descubrir',
     companion: 'un viejo mapa que siempre encontraba una ruta nueva',
-    companionName: 'el mapa',
+    companionName: 'El mapa',
     symbol: 'una brújula que señalaba hacia adelante, paso a paso',
     symbolName: 'la brújula',
     opening: (name) => `${name} llevaba siempre su mochila lista para la próxima aventura.`,
@@ -175,7 +175,7 @@ export const STYLE_WORLDS: Record<StyleId, StyleWorld> = {
   superheroes: {
     setting: 'la Ciudad de los Pequeños Grandes Momentos',
     companion: 'el Capitán Rutina, un compañero que nunca fallaba a su lado',
-    companionName: 'el Capitán Rutina',
+    companionName: 'El Capitán Rutina',
     symbol: 'un cinturón con un compartimento especial para las cosas importantes del día',
     symbolName: 'el cinturón',
     opening: (name) => `${name} tenía un traje especial guardado en el armario, listo para los días en que hacía falta un poco de superpoder.`,
@@ -220,7 +220,7 @@ export const STYLE_WORLDS: Record<StyleId, StyleWorld> = {
   realista: {
     setting: 'su casa, su colegio y su barrio de siempre',
     companion: 'su familia y las personas de confianza de su día a día',
-    companionName: 'su familia',
+    companionName: 'Su familia',
     symbol: 'una libreta donde apuntaba las cosas importantes',
     symbolName: 'la libreta',
     opening: (name) => `${name} vivía su día a día entre el colegio, la familia y sus propias ideas.`,
@@ -229,7 +229,7 @@ export const STYLE_WORLDS: Record<StyleId, StyleWorld> = {
   comic: {
     setting: 'la Ciudad de Papel, dibujada en viñetas',
     companion: 'un compañero de viñetas que aparecía justo cuando hacía falta un empujón',
-    companionName: 'su compañero de viñetas',
+    companionName: 'Su compañero de viñetas',
     symbol: 'un bocadillo de cómic donde escribía sus pensamientos más importantes',
     symbolName: 'el bocadillo de cómic',
     opening: (name) => `Viñeta uno: ${name} aparece con una libreta de superpoderes bajo el brazo.`,
@@ -238,7 +238,7 @@ export const STYLE_WORLDS: Record<StyleId, StyleWorld> = {
   diario: {
     setting: 'las páginas de un diario personal',
     companion: 'ese diario, que guardaba cada pensamiento sin juzgar nunca',
-    companionName: 'su diario',
+    companionName: 'Su diario',
     symbol: 'un bolígrafo que ya conocía todos sus secretos',
     symbolName: 'el bolígrafo',
     opening: (name) => `Querido diario: hoy quiero contarte lo que me está pasando a mí, ${name}.`,
