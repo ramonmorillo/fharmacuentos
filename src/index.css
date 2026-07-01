@@ -1,0 +1,61 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
+
+  /* Paleta suave, cálida y profesional (evita infantilización excesiva) */
+  --color-brand-50: #f1f8f7;
+  --color-brand-100: #dcefec;
+  --color-brand-200: #b9dfd9;
+  --color-brand-300: #8ecabf;
+  --color-brand-400: #5fae9f;
+  --color-brand-500: #3f9184;
+  --color-brand-600: #2f746a;
+  --color-brand-700: #275c56;
+  --color-brand-800: #204944;
+  --color-brand-900: #1a3a37;
+
+  --color-sun-100: #fff3d6;
+  --color-sun-200: #ffe3a3;
+  --color-sun-400: #f4b942;
+  --color-sun-500: #e2a02c;
+
+  --color-coral-100: #ffe4de;
+  --color-coral-400: #f08a72;
+  --color-coral-500: #e06a4f;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(180deg, var(--color-brand-50) 0%, #ffffff 320px);
+  color: #1f2933;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-brand-200);
+}
+
+/* Área imprimible: solo el cuento se muestra al imprimir o exportar */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-story,
+  #printable-story * {
+    visibility: visible;
+  }
+  #printable-story {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    padding: 24px;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
