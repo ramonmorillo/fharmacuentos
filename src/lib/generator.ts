@@ -200,12 +200,29 @@ const REFLECTION_POOL: Record<AgeBand, (ctx: NarrativeContext) => string[]> = {
   ],
 }
 
+/**
+ * Frase que incorpora el detalle libre indicado por quien usa la herramienta (p. ej. "le gustan
+ * los dinosaurios"). Se añade al primer párrafo, donde se presenta al protagonista, para que el
+ * campo "Detalles adicionales" del formulario tenga un efecto real y visible en el cuento. El
+ * texto pasa por sanitize() igual que el resto de párrafos (ver generateStory), por lo que un
+ * patrón clínico o con barras introducido aquí queda igualmente neutralizado.
+ */
+function extraDetailSentence(ctx: NarrativeContext): string | undefined {
+  if (!ctx.extraDetail) return undefined
+  return ctx.style === 'diario'
+    ? `Algo que también forma parte de mí, aunque no tenga que ver directamente con esto: ${ctx.extraDetail}.`
+    : `Algo que también forma parte de ${ctx.name}, aunque no tenga que ver directamente con esto: ${ctx.extraDetail}.`
+}
+
 function buildNarrative(ctx: NarrativeContext, object: StyleObject, duration: DurationId): string[] {
   const range = targetRange(ctx.ageGroup, duration)
   const styleData = STYLE_ELEMENTS[ctx.style]
   const scene: SceneVars = { object, place: styleData.place, elementsList: styleData.elements.slice(0, 4).join(', ') }
   const rawScenes = buildSceneTexts(ctx.style)
   const paragraphs = rawScenes.map((raw, i) => expandScene(replaceTokens(raw, ctx, scene), i, ctx, range))
+
+  const detail = extraDetailSentence(ctx)
+  if (detail) paragraphs[0] = `${paragraphs[0]} ${detail}`
 
   // 1) Ganar extensión real con escenas adicionales únicas (cada una aparece como máximo una vez).
   if (range.min >= 600) {
