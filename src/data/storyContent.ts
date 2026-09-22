@@ -126,21 +126,57 @@ export const EMOTION_CONTENT: Record<EmotionId, EmotionContent> = {
 }
 
 export interface MessageContent {
-  /** Frase de cierre que retoma el mensaje elegido. */
+  /** Frase de cierre que retoma el mensaje elegido, en 3ª persona ("{{name}} " + closing). */
   closing: string
+  /** Misma frase en 1ª persona, para el estilo "diario" (ya narrado como "yo"). */
+  closingDiario: string
 }
 
+// closing/closingDiario evitan deliberadamente las frases de FORBIDDEN_PHRASES y el patrón
+// "x/a" de SLASH_PATTERN (generator.ts): varias redacciones anteriores de este catálogo
+// coincidían literalmente con frases que el propio validador del cuento rechaza (p. ej.
+// "aprendió que", "cada pequeño paso cuenta", "equipo sanitario", "solo/a").
 export const MESSAGE_CONTENT: Record<MessageId, MessageContent> = {
-  'pasos-cuentan': { closing: 'aprendió que cada pequeño paso cuenta, aunque algunos días esos pasos sean diminutos' },
-  equipo: { closing: 'entendió que su tratamiento es, en realidad, parte de su propio equipo' },
-  'pedir-ayuda-valiente': { closing: 'descubrió que pedir ayuda también es una forma de ser valiente' },
-  'no-solo': { closing: 'sintió que, aunque a veces lo pareciera, nunca estaba solo/a en esto' },
-  'cuidarme-ayuda': { closing: 'comprendió que cuidarse le ayuda a seguir haciendo las cosas que más le gustan' },
-  'aprender-poco-a-poco': { closing: 'se dio cuenta de que podía aprender todo esto poco a poco, sin prisa' },
-  'no-perfecto': { closing: 'aceptó que hay días difíciles, y que no por eso tenía que hacerlo todo perfecto' },
-  'equipo-sanitario': { closing: 'recordó que su equipo sanitario está ahí precisamente para ayudarle' },
-  preguntar: { closing: 'aprendió que siempre puede preguntar cuando algo no le queda claro' },
-  'rutina-aliada': { closing: 'empezó a ver su rutina no como una carga, sino como una aliada' },
+  'pasos-cuentan': {
+    closing: 'confirmó que cada paso pequeño suma, aunque algunos días esos pasos sean diminutos',
+    closingDiario: 'confirmé que cada paso pequeño suma, aunque algunos días esos pasos sean diminutos',
+  },
+  equipo: {
+    closing: 'entendió que su tratamiento es, en realidad, parte de su propio equipo',
+    closingDiario: 'entendí que mi tratamiento es, en realidad, parte de mi propio equipo',
+  },
+  'pedir-ayuda-valiente': {
+    closing: 'descubrió que pedir ayuda también es una forma de ser valiente',
+    closingDiario: 'descubrí que pedir ayuda también es una forma de ser valiente',
+  },
+  'no-solo': {
+    closing: 'sintió que, aunque a veces lo pareciera, nunca estaba en esto sin compañía',
+    closingDiario: 'sentí que, aunque a veces lo pareciera, nunca estaba en esto sin compañía',
+  },
+  'cuidarme-ayuda': {
+    closing: 'comprendió que cuidarse le ayuda a seguir haciendo las cosas que más le gustan',
+    closingDiario: 'comprendí que cuidarme me ayuda a seguir haciendo las cosas que más me gustan',
+  },
+  'aprender-poco-a-poco': {
+    closing: 'notó que podía aprender todo esto poco a poco, sin prisa',
+    closingDiario: 'noté que podía aprender todo esto poco a poco, sin prisa',
+  },
+  'no-perfecto': {
+    closing: 'aceptó que hay días difíciles, y que no por eso tenía que hacerlo todo perfecto',
+    closingDiario: 'acepté que hay días difíciles, y que no por eso tenía que hacerlo todo perfecto',
+  },
+  'equipo-sanitario': {
+    closing: 'recordó que el equipo que le cuida está ahí precisamente para ayudarle',
+    closingDiario: 'recordé que el equipo que me cuida está ahí precisamente para ayudarme',
+  },
+  preguntar: {
+    closing: 'confirmó que siempre puede preguntar cuando algo no le queda claro',
+    closingDiario: 'confirmé que siempre puedo preguntar cuando algo no me queda claro',
+  },
+  'rutina-aliada': {
+    closing: 'empezó a ver su rutina no como una carga, sino como una aliada',
+    closingDiario: 'empecé a ver mi rutina no como una carga, sino como una aliada',
+  },
 }
 
 export interface StyleWorld {

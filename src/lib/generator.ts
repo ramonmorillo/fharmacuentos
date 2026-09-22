@@ -1,7 +1,7 @@
 import { ACTIVITIES } from '../data/activities'
 import { PEDAGOGICAL_COMPETENCES } from '../data/options'
 import { buildSceneTexts, COMPETENCE_ACTIONS, pickStyleObject, STYLE_ELEMENTS, type NarrativeContext, type StyleObject } from '../data/narrativeTemplates'
-import { EMOTION_CONTENT, SITUATION_CONTENT, STYLE_WORLDS } from '../data/storyContent'
+import { EMOTION_CONTENT, MESSAGE_CONTENT, SITUATION_CONTENT, STYLE_WORLDS } from '../data/storyContent'
 import type { AgeGroupId, DurationId, GeneratedStory, StoryFormData } from '../types'
 
 const DISCLAIMER =
@@ -77,10 +77,23 @@ function replaceTokens(text: string, ctx: NarrativeContext, scene?: SceneVars): 
   return result
 }
 
+/**
+ * Recortar el mínimo de palabras al techo de la edad (age.max) deja "estándar" y "desarrollado"
+ * con el mismo objetivo mínimo para el grupo 3-5 años (ambos superan los 600 palabras del techo,
+ * así que los dos se recortan al mismo valor): la duración elegida deja de tener efecto real. Se
+ * define una progresión explícita para ese grupo, dentro del mismo techo que ya existía, en vez
+ * de recortar cada duración de forma independiente.
+ */
+const AGE_DURATION_MIN_OVERRIDE: Partial<Record<AgeGroupId, Record<DurationId, number>>> = {
+  '3-5': { mini: 400, estandar: 500, desarrollado: 600 },
+}
+
 function targetRange(ageGroup: AgeGroupId, duration: DurationId): { min: number; max: number } {
   const depth = DEPTH_WORD_RANGES[duration]
   const age = AGE_WORD_RANGES[ageGroup]
-  return { min: Math.min(depth.min, age.max), max: Math.min(depth.max, age.max) }
+  const min = AGE_DURATION_MIN_OVERRIDE[ageGroup]?.[duration] ?? Math.min(depth.min, age.max)
+  const max = Math.min(depth.max, age.max)
+  return { min, max: Math.max(max, min) }
 }
 
 type AgeBand = 'infantil' | 'media' | 'adolescente'
@@ -152,10 +165,15 @@ const SCENE_CLOSINGS: Record<AgeBand, string[]> = {
   ],
 }
 
+// 500 en vez de 600: es el nuevo objetivo mínimo de "estándar" para 3-5 años (ver
+// AGE_DURATION_MIN_OVERRIDE). Con el umbral en 600, ese objetivo caía en el tramo "sin expandir",
+// que no genera suficiente texto para alcanzar ni siquiera su propio mínimo. Bajar el umbral a
+// 500 no cambia nada para el resto de combinaciones edad×duración: sus objetivos ya están o muy
+// por debajo (mini, siempre 400) o muy por encima (el resto, ≥600) de este límite.
 function expandScene(scene: string, index: number, ctx: NarrativeContext, target: { min: number }): string {
   const band = ageBand(ctx.ageGroup)
   const details = SCENE_DETAILS[band]
-  if (target.min < 600) return scene
+  if (target.min < 500) return scene
   if (target.min < 900) return `${scene} ${details[index % details.length]}`
   const closings = SCENE_CLOSINGS[band]
   return `${scene} ${details[index % details.length]} ${closings[index % closings.length]}`
@@ -213,6 +231,20 @@ const REFLECTION_POOL: Record<AgeBand, (ctx: NarrativeContext) => string[]> = {
   ],
 }
 
+/**
+ * Frase que incorpora el detalle libre indicado por quien usa la herramienta (p. ej. "le gustan
+ * los dinosaurios"). Se añade al primer párrafo, donde se presenta al protagonista, para que el
+ * campo "Detalles adicionales" del formulario tenga un efecto real y visible en el cuento. El
+ * texto pasa por sanitize() igual que el resto de párrafos (ver generateStory), por lo que un
+ * patrón clínico o con barras introducido aquí queda igualmente neutralizado.
+ */
+function extraDetailSentence(ctx: NarrativeContext): string | undefined {
+  if (!ctx.extraDetail) return undefined
+  return ctx.style === 'diario'
+    ? `Algo que también forma parte de mí, aunque no tenga que ver directamente con esto: ${ctx.extraDetail}.`
+    : `Algo que también forma parte de ${ctx.name}, aunque no tenga que ver directamente con esto: ${ctx.extraDetail}.`
+}
+
 function buildNarrative(ctx: NarrativeContext, object: StyleObject, duration: DurationId): string[] {
   const range = targetRange(ctx.ageGroup, duration)
   const styleData = STYLE_ELEMENTS[ctx.style]
@@ -220,8 +252,13 @@ function buildNarrative(ctx: NarrativeContext, object: StyleObject, duration: Du
   const rawScenes = buildSceneTexts(ctx.style)
   const paragraphs = rawScenes.map((raw, i) => expandScene(replaceTokens(raw, ctx, scene), i, ctx, range))
 
+  const detail = extraDetailSentence(ctx)
+  if (detail) paragraphs[0] = `${paragraphs[0]} ${detail}`
+
   // 1) Ganar extensión real con escenas adicionales únicas (cada una aparece como máximo una vez).
-  if (range.min >= 600) {
+  // Mismo umbral que expandScene (ver comentario allí): 500 en vez de 600 para que el nuevo
+  // objetivo de "estándar" en 3-5 años pueda alcanzarse de verdad.
+  if (range.min >= 500) {
     for (const beat of extraBeats(ctx)) {
       if (wordCount(paragraphs.join(' ')) >= range.min) break
       paragraphs.push(replaceTokens(beat, ctx))
@@ -239,6 +276,11 @@ function buildNarrative(ctx: NarrativeContext, object: StyleObject, duration: Du
     paragraphs[targetParagraph] += ` ${sentence}`
     added += 1
   }
+
+  // 3) Cierre que retoma el/los mensaje/s principal/es elegido/s, como párrafo final propio.
+  const closing = messagesClosing(ctx)
+  if (closing) paragraphs.push(closing)
+
   return paragraphs
 }
 
@@ -269,7 +311,7 @@ function validateStory(args: { title: string; paragraphs: string[]; activity: st
 export function generateStory(data: StoryFormData): GeneratedStory {
   const name = capitalizeName(data.protagonistName.trim() || 'Protagonista')
   const world = STYLE_WORLDS[data.style]
-  const ctx: NarrativeContext = { name, ageGroup: data.ageGroup, situation: data.situation, situationText: sanitize(situationText(data)), emotion: sanitize(normalizeEmotion(data)), style: data.style, competence: data.pedagogicalCompetence, competenceLabel: competenceLabel(data.pedagogicalCompetence), companion: world.companionName || 'una persona de confianza', extraDetail: data.extraDetails.trim() || undefined }
+  const ctx: NarrativeContext = { name, ageGroup: data.ageGroup, situation: data.situation, situationText: sanitize(situationText(data)), emotion: sanitize(normalizeEmotion(data)), style: data.style, competence: data.pedagogicalCompetence, competenceLabel: competenceLabel(data.pedagogicalCompetence), companion: world.companionName || 'una persona de confianza', extraDetail: data.extraDetails.trim() || undefined, messages: data.messages }
   const requiredElements = STYLE_ELEMENTS[ctx.style].elements
   for (let attempt = 0; attempt < 3; attempt += 1) {
     // El objeto y la combinación de frases se sortean en cada intento (y en cada "Generar nueva
@@ -285,7 +327,17 @@ export function generateStory(data: StoryFormData): GeneratedStory {
     const validation = validateStory({ title, paragraphs, activity, familyQuestion, parentMessage, requiredElements, context: ctx, duration: data.duration })
     if (validation.ok || attempt === 2) {
       if (!validation.ok) console.warn('FHarmacuentos: validación narrativa con advertencias', validation.reasons)
-      return { title, paragraphs, motivationalMessage: `Qué puede trabajar este cuento: ${ctx.competenceLabel}.`, closing: paragraphs.at(-1) ?? '', activity, familyQuestion, parentMessage, disclaimer: DISCLAIMER }
+      return {
+        title,
+        paragraphs,
+        motivationalMessage: `Qué puede trabajar este cuento: ${ctx.competenceLabel}.`,
+        closing: paragraphs.at(-1) ?? '',
+        activity,
+        familyQuestion,
+        parentMessage,
+        disclaimer: DISCLAIMER,
+        qualityWarnings: validation.ok ? undefined : validation.reasons,
+      }
     }
     console.warn('FHarmacuentos: intento descartado por validación', validation.reasons)
   }

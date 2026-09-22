@@ -20,19 +20,23 @@ function FieldCard({ title, hint, children }: { title: string; hint?: string; ch
 }
 
 function ChoiceGrid<T extends string>({
+  label,
   options,
   value,
   onChange,
 }: {
+  label: string
   options: { id: T; label: string; description?: string }[]
   value: T
   onChange: (id: T) => void
 }) {
   return (
-    <div className="grid sm:grid-cols-2 gap-2">
+    <div role="radiogroup" aria-label={label} className="grid sm:grid-cols-2 gap-2">
       {options.map((opt) => (
         <button
           type="button"
+          role="radio"
+          aria-checked={value === opt.id}
           key={opt.id}
           onClick={() => onChange(opt.id)}
           className={`text-left px-3 py-2 rounded-lg border text-sm transition-colors ${
@@ -95,7 +99,7 @@ export function StoryForm({ initialData, onGenerate, onBack }: StoryFormProps) {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <FieldCard title="Edad del paciente">
-          <ChoiceGrid options={AGE_GROUPS} value={data.ageGroup} onChange={(v) => update('ageGroup', v)} />
+          <ChoiceGrid label="Edad del paciente" options={AGE_GROUPS} value={data.ageGroup} onChange={(v) => update('ageGroup', v)} />
         </FieldCard>
 
         <FieldCard
@@ -113,37 +117,40 @@ export function StoryForm({ initialData, onGenerate, onBack }: StoryFormProps) {
         </FieldCard>
 
         <FieldCard title="Situación principal">
-          <ChoiceGrid options={SITUATIONS} value={data.situation} onChange={(v) => update('situation', v)} />
+          <ChoiceGrid label="Situación principal" options={SITUATIONS} value={data.situation} onChange={(v) => update('situation', v)} />
           {data.situation === 'otra' && (
             <textarea
               value={data.situationOther}
               onChange={(e) => update('situationOther', e.target.value)}
               placeholder="Describe la situación sin incluir datos identificativos ni clínicos"
               rows={2}
+              maxLength={200}
               className={`mt-3 ${inputClasses}`}
             />
           )}
         </FieldCard>
 
         <FieldCard title="Emoción principal">
-          <ChoiceGrid options={EMOTIONS} value={data.emotion} onChange={(v) => update('emotion', v)} />
+          <ChoiceGrid label="Emoción principal" options={EMOTIONS} value={data.emotion} onChange={(v) => update('emotion', v)} />
           {data.emotion === 'otra' && (
             <input
               type="text"
               value={data.emotionOther}
               onChange={(e) => update('emotionOther', e.target.value)}
               placeholder="Describe la emoción"
+              maxLength={80}
               className={`mt-3 ${inputClasses}`}
             />
           )}
         </FieldCard>
 
         <FieldCard title="Estilo del cuento">
-          <ChoiceGrid options={STYLES} value={data.style} onChange={(v) => update('style', v)} />
+          <ChoiceGrid label="Estilo del cuento" options={STYLES} value={data.style} onChange={(v) => update('style', v)} />
         </FieldCard>
 
         <FieldCard title="Competencia que se quiere trabajar" hint="Elige una competencia concreta para que el cuento tenga un foco pedagógico claro.">
           <ChoiceGrid
+            label="Competencia que se quiere trabajar"
             options={PEDAGOGICAL_COMPETENCES}
             value={data.pedagogicalCompetence}
             onChange={(v) => update('pedagogicalCompetence', v)}
@@ -151,10 +158,11 @@ export function StoryForm({ initialData, onGenerate, onBack }: StoryFormProps) {
         </FieldCard>
 
         <FieldCard title="Mensaje principal" hint="Puedes seleccionar uno o varios.">
-          <div className="flex flex-wrap gap-2">
+          <div role="group" aria-label="Mensaje principal" className="flex flex-wrap gap-2">
             {MESSAGES.map((m) => (
               <button
                 type="button"
+                aria-pressed={data.messages.includes(m.id)}
                 key={m.id}
                 onClick={() => toggleMessage(m.id)}
                 className={`px-3 py-1.5 rounded-full border text-sm transition-colors ${
@@ -170,10 +178,12 @@ export function StoryForm({ initialData, onGenerate, onBack }: StoryFormProps) {
         </FieldCard>
 
         <FieldCard title="Profundidad del cuento" hint="La herramienta ajusta la extensión según la edad y la opción elegida.">
-          <div className="grid sm:grid-cols-3 gap-2">
+          <div role="radiogroup" aria-label="Profundidad del cuento" className="grid sm:grid-cols-3 gap-2">
             {DURATIONS.map((d) => (
               <button
                 type="button"
+                role="radio"
+                aria-checked={data.duration === d.id}
                 key={d.id}
                 onClick={() => update('duration', d.id)}
                 className={`text-left px-3 py-2 rounded-lg border text-sm transition-colors ${
