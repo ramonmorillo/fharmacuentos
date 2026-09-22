@@ -264,7 +264,12 @@ function extraDetailSentence(ctx: NarrativeContext): string | undefined {
 function buildNarrative(ctx: NarrativeContext, object: StyleObject, duration: DurationId): string[] {
   const range = targetRange(ctx.ageGroup, duration)
   const styleData = STYLE_ELEMENTS[ctx.style]
-  const scene: SceneVars = { object, place: styleData.place, elementsList: styleData.elements.slice(0, 4).join(', ') }
+  // Se excluye el objeto elegido (pickStyleObject) de la lista mostrada: STYLE_ELEMENTS y
+  // STYLE_OBJECTS comparten las mismas palabras en la mayoría de estilos, así que sin este
+  // filtro el objeto sorteado podía aparecer también en la lista ("... destaca un mapa" cuando
+  // "mapa" ya estaba entre los elementos listados).
+  const elementsList = styleData.elements.filter((element) => element !== object.word).slice(0, 4).join(', ')
+  const scene: SceneVars = { object, place: styleData.place, elementsList }
   const rawScenes = buildSceneTexts(ctx.style)
   const paragraphs = rawScenes.map((raw, i) => expandScene(replaceTokens(raw, ctx, scene), i, ctx, duration))
 
