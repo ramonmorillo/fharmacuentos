@@ -272,7 +272,17 @@ export function generateStory(data: StoryFormData): GeneratedStory {
     const validation = validateStory({ title, paragraphs, activity, familyQuestion, parentMessage, requiredElements, context: ctx, duration: data.duration })
     if (validation.ok || attempt === 2) {
       if (!validation.ok) console.warn('FHarmacuentos: validación narrativa con advertencias', validation.reasons)
-      return { title, paragraphs, motivationalMessage: `Qué puede trabajar este cuento: ${ctx.competenceLabel}.`, closing: paragraphs.at(-1) ?? '', activity, familyQuestion, parentMessage, disclaimer: DISCLAIMER }
+      return {
+        title,
+        paragraphs,
+        motivationalMessage: `Qué puede trabajar este cuento: ${ctx.competenceLabel}.`,
+        closing: paragraphs.at(-1) ?? '',
+        activity,
+        familyQuestion,
+        parentMessage,
+        disclaimer: DISCLAIMER,
+        qualityWarnings: validation.ok ? undefined : validation.reasons,
+      }
     }
     console.warn('FHarmacuentos: intento descartado por validación', validation.reasons)
   }

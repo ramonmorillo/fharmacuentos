@@ -134,6 +134,16 @@ export function StoryResult({ story, onRegenerate, onClear, onBackToForm }: Stor
         </button>
       </div>
 
+      {story.qualityWarnings && story.qualityWarnings.length > 0 && (
+        <div className="no-print mb-6">
+          <DisclaimerBanner
+            tone="alert"
+            text="Este cuento no ha superado todas las comprobaciones automáticas de calidad tras varios intentos de generación. Revísalo con especial atención antes de entregarlo, o pulsa «Generar nueva versión»:"
+            items={story.qualityWarnings}
+          />
+        </div>
+      )}
+
       <div
         id="printable-story"
         className="bg-white rounded-2xl border border-brand-100 shadow-2xl shadow-black/40 overflow-hidden"
