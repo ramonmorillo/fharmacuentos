@@ -261,6 +261,28 @@ function extraDetailSentence(ctx: NarrativeContext): string | undefined {
     : `Algo que también forma parte de ${ctx.name}, aunque no tenga que ver directamente con esto: ${ctx.extraDetail}.`
 }
 
+/**
+ * Párrafo de cierre que retoma el/los mensaje/s principal/es elegido/s en el formulario
+ * (data.messages), hasta ahora sin ningún efecto en el cuento generado pese a mostrarse como
+ * seleccionable. Usa MESSAGE_CONTENT (data/storyContent.ts), con voz narrativa adaptada al
+ * estilo (3ª persona salvo en "diario", en 1ª persona).
+ */
+function messagesClosing(ctx: NarrativeContext): string | undefined {
+  if (ctx.messages.length === 0) return undefined
+  if (ctx.style === 'diario') {
+    return ctx.messages
+      .map((id, i) => {
+        const sentence = MESSAGE_CONTENT[id].closingDiario
+        const capitalized = sentence.charAt(0).toLocaleUpperCase('es-ES') + sentence.slice(1)
+        return i === 0 ? `${capitalized}.` : `También ${sentence}.`
+      })
+      .join(' ')
+  }
+  const clauses = ctx.messages.map((id) => MESSAGE_CONTENT[id].closing)
+  const joined = clauses.length === 1 ? clauses[0] : `${clauses.slice(0, -1).join(', ')} y ${clauses.at(-1)}`
+  return `Al final, ${ctx.name} ${joined}.`
+}
+
 function buildNarrative(ctx: NarrativeContext, object: StyleObject, duration: DurationId): string[] {
   const range = targetRange(ctx.ageGroup, duration)
   const styleData = STYLE_ELEMENTS[ctx.style]
