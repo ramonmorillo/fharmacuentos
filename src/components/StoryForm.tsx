@@ -120,6 +120,7 @@ export function StoryForm({ initialData, onGenerate, onBack }: StoryFormProps) {
               onChange={(e) => update('situationOther', e.target.value)}
               placeholder="Describe la situación sin incluir datos identificativos ni clínicos"
               rows={2}
+              maxLength={200}
               className={`mt-3 ${inputClasses}`}
             />
           )}
@@ -133,6 +134,7 @@ export function StoryForm({ initialData, onGenerate, onBack }: StoryFormProps) {
               value={data.emotionOther}
               onChange={(e) => update('emotionOther', e.target.value)}
               placeholder="Describe la emoción"
+              maxLength={80}
               className={`mt-3 ${inputClasses}`}
             />
           )}
