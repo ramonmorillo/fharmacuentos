@@ -64,10 +64,23 @@ function replaceTokens(text: string, ctx: NarrativeContext, scene?: SceneVars): 
   return result
 }
 
+/**
+ * Recortar el mínimo de palabras al techo de la edad (age.max) deja "estándar" y "desarrollado"
+ * con el mismo objetivo mínimo para el grupo 3-5 años (ambos superan los 600 palabras del techo,
+ * así que los dos se recortan al mismo valor): la duración elegida deja de tener efecto real. Se
+ * define una progresión explícita para ese grupo, dentro del mismo techo que ya existía, en vez
+ * de recortar cada duración de forma independiente.
+ */
+const AGE_DURATION_MIN_OVERRIDE: Partial<Record<AgeGroupId, Record<DurationId, number>>> = {
+  '3-5': { mini: 400, estandar: 500, desarrollado: 600 },
+}
+
 function targetRange(ageGroup: AgeGroupId, duration: DurationId): { min: number; max: number } {
   const depth = DEPTH_WORD_RANGES[duration]
   const age = AGE_WORD_RANGES[ageGroup]
-  return { min: Math.min(depth.min, age.max), max: Math.min(depth.max, age.max) }
+  const min = AGE_DURATION_MIN_OVERRIDE[ageGroup]?.[duration] ?? Math.min(depth.min, age.max)
+  const max = Math.min(depth.max, age.max)
+  return { min, max: Math.max(max, min) }
 }
 
 type AgeBand = 'infantil' | 'media' | 'adolescente'
@@ -139,10 +152,15 @@ const SCENE_CLOSINGS: Record<AgeBand, string[]> = {
   ],
 }
 
+// 500 en vez de 600: es el nuevo objetivo mínimo de "estándar" para 3-5 años (ver
+// AGE_DURATION_MIN_OVERRIDE). Con el umbral en 600, ese objetivo caía en el tramo "sin expandir",
+// que no genera suficiente texto para alcanzar ni siquiera su propio mínimo. Bajar el umbral a
+// 500 no cambia nada para el resto de combinaciones edad×duración: sus objetivos ya están o muy
+// por debajo (mini, siempre 400) o muy por encima (el resto, ≥600) de este límite.
 function expandScene(scene: string, index: number, ctx: NarrativeContext, target: { min: number }): string {
   const band = ageBand(ctx.ageGroup)
   const details = SCENE_DETAILS[band]
-  if (target.min < 600) return scene
+  if (target.min < 500) return scene
   if (target.min < 900) return `${scene} ${details[index % details.length]}`
   const closings = SCENE_CLOSINGS[band]
   return `${scene} ${details[index % details.length]} ${closings[index % closings.length]}`
@@ -208,7 +226,9 @@ function buildNarrative(ctx: NarrativeContext, object: StyleObject, duration: Du
   const paragraphs = rawScenes.map((raw, i) => expandScene(replaceTokens(raw, ctx, scene), i, ctx, range))
 
   // 1) Ganar extensión real con escenas adicionales únicas (cada una aparece como máximo una vez).
-  if (range.min >= 600) {
+  // Mismo umbral que expandScene (ver comentario allí): 500 en vez de 600 para que el nuevo
+  // objetivo de "estándar" en 3-5 años pueda alcanzarse de verdad.
+  if (range.min >= 500) {
     for (const beat of extraBeats(ctx)) {
       if (wordCount(paragraphs.join(' ')) >= range.min) break
       paragraphs.push(replaceTokens(beat, ctx))
