@@ -276,6 +276,10 @@ function buildNarrative(ctx: NarrativeContext, object: StyleObject, duration: Du
   const detail = extraDetailSentence(ctx)
   if (detail) paragraphs[0] = `${paragraphs[0]} ${detail}`
 
+  // Frase de apertura propia del estilo elegido, como primera frase del cuento.
+  const opening = STYLE_WORLDS[ctx.style].opening(ctx.name)
+  paragraphs[0] = `${opening} ${paragraphs[0]}`
+
   // 1) Ganar extensión real con escenas adicionales únicas (cada una aparece como máximo una vez).
   // Igual que en expandScene: se basa en la duración elegida, no en el objetivo numérico, para
   // que ajustar AGE_DURATION_MIN no pueda desactivar esta fase sin querer.

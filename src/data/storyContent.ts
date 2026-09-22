@@ -180,104 +180,55 @@ export const MESSAGE_CONTENT: Record<MessageId, MessageContent> = {
 }
 
 export interface StyleWorld {
-  setting: string
-  companion: string
   companionName: string
-  symbol: string
-  symbolName: string
+  /** Frase de apertura propia del estilo, usada como primera frase del cuento. */
   opening: (name: string) => string
-  titles: (name: string) => string[]
 }
 
+// Antes tenía también setting/companion/symbol/symbolName/titles: contenido escrito pero nunca
+// usado (solo se leía companionName). setting/companion/symbol/symbolName eran redundantes con
+// STYLE_ELEMENTS/STYLE_OBJECTS (lugar y objetos de la escena); titles habría sustituido el título
+// actual, que ya conecta con la competencia elegida ("{{name}} y {competenceArtifact}") y se
+// prefiere mantener esa conexión pedagógica.
 export const STYLE_WORLDS: Record<StyleId, StyleWorld> = {
   aventurero: {
-    setting: 'un camino lleno de senderos por descubrir',
-    companion: 'un viejo mapa que siempre encontraba una ruta nueva',
     companionName: 'El mapa',
-    symbol: 'una brújula que señalaba hacia adelante, paso a paso',
-    symbolName: 'la brújula',
     opening: (name) => `${name} llevaba siempre su mochila lista para la próxima aventura.`,
-    titles: (name) => [`${name} y el camino de los pasos valientes`, `La brújula de ${name}`],
   },
   magico: {
-    setting: 'un bosque encantado donde los árboles susurraban ánimos',
-    companion: 'una lucecita llamada Chispa que aparecía en los momentos difíciles',
     companionName: 'Chispa',
-    symbol: 'una varita pequeña que no hacía magia de verdad, pero ayudaba a pensar mejor',
-    symbolName: 'la varita',
     opening: (name) => `${name} guardaba un secreto mágico: en su bolsillo vivía una chispa de luz llamada Chispa.`,
-    titles: (name) => [`${name} y la luz de Chispa`, `El bosque encantado de ${name}`],
   },
   superheroes: {
-    setting: 'la Ciudad de los Pequeños Grandes Momentos',
-    companion: 'el Capitán Rutina, un compañero que nunca fallaba a su lado',
     companionName: 'El Capitán Rutina',
-    symbol: 'un cinturón con un compartimento especial para las cosas importantes del día',
-    symbolName: 'el cinturón',
     opening: (name) => `${name} tenía un traje especial guardado en el armario, listo para los días en que hacía falta un poco de superpoder.`,
-    titles: (name) => [`${name}, superhéroe de los pequeños pasos`, `El equipo invisible de ${name}`],
   },
   animales: {
-    setting: 'el Bosque Susurrante',
-    companion: 'Buho, un amigo sabio que siempre escuchaba sin prisa',
     companionName: 'Buho',
-    symbol: 'una hoja brillante que Buho regalaba después de cada paso valiente',
-    symbolName: 'la hoja brillante',
     opening: (name) => `${name} tenía un amigo muy especial en el Bosque Susurrante: un búho llamado Buho.`,
-    titles: (name) => [`${name} y el bosque de las revisiones`, `La hoja brillante de ${name}`],
   },
   espacial: {
-    setting: 'la estación espacial Pequeños Pasos',
-    companion: 'Orbi, un robot amigable con luces parpadeantes',
     companionName: 'Orbi',
-    symbol: 'un mapa de estrellas que marcaba cada avance conseguido',
-    symbolName: 'el mapa de estrellas',
     opening: (name) => `${name} pilotaba, en su imaginación, la nave Pequeños Pasos junto a Orbi, su robot de confianza.`,
-    titles: (name) => [`${name} y la estación de los pequeños pasos`, `El mapa de estrellas de ${name}`],
   },
   deportivo: {
-    setting: 'el campo de entrenamiento del equipo Adelante',
-    companion: 'Ana, la entrenadora que siempre animaba desde la banda',
     companionName: 'Ana',
-    symbol: 'un silbato que sonaba cada vez que se cumplía un pequeño objetivo',
-    symbolName: 'el silbato',
     opening: (name) => `${name} formaba parte del equipo Adelante, con Ana, su entrenadora, siempre cerca.`,
-    titles: (name) => [`${name} y el equipo Adelante`, `El silbato de los pequeños logros de ${name}`],
   },
   submarino: {
-    setting: 'el arrecife de los colores',
-    companion: 'Coral, una tortuga muy sabia y paciente',
     companionName: 'Coral',
-    symbol: 'una concha que, según decían, escuchaba todo lo que se le contaba',
-    symbolName: 'la concha',
     opening: (name) => `${name} exploraba el arrecife de los colores junto a Coral, una tortuga muy sabia.`,
-    titles: (name) => [`${name} y el arrecife de los colores`, `La concha que escuchaba a ${name}`],
   },
   realista: {
-    setting: 'su casa, su colegio y su barrio de siempre',
-    companion: 'su familia y las personas de confianza de su día a día',
     companionName: 'Su familia',
-    symbol: 'una libreta donde apuntaba las cosas importantes',
-    symbolName: 'la libreta',
     opening: (name) => `${name} vivía su día a día entre el colegio, la familia y sus propias ideas.`,
-    titles: (name) => [`Un día cualquiera de ${name}`, `${name} y la libreta de las cosas importantes`],
   },
   comic: {
-    setting: 'la Ciudad de Papel, dibujada en viñetas',
-    companion: 'un compañero de viñetas que aparecía justo cuando hacía falta un empujón',
     companionName: 'Su compañero de viñetas',
-    symbol: 'un bocadillo de cómic donde escribía sus pensamientos más importantes',
-    symbolName: 'el bocadillo de cómic',
     opening: (name) => `Viñeta uno: ${name} aparece con una libreta de superpoderes bajo el brazo.`,
-    titles: (name) => [`Las viñetas de ${name}`, `${name}: una historia en cómic`],
   },
   diario: {
-    setting: 'las páginas de un diario personal',
-    companion: 'ese diario, que guardaba cada pensamiento sin juzgar nunca',
     companionName: 'Su diario',
-    symbol: 'un bolígrafo que ya conocía todos sus secretos',
-    symbolName: 'el bolígrafo',
     opening: (name) => `Querido diario: hoy quiero contarte lo que me está pasando a mí, ${name}.`,
-    titles: (name) => [`El diario de ${name}`, `Páginas de ${name}`],
   },
 }
