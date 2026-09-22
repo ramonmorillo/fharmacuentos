@@ -207,6 +207,10 @@ function buildNarrative(ctx: NarrativeContext, object: StyleObject, duration: Du
   const rawScenes = buildSceneTexts(ctx.style)
   const paragraphs = rawScenes.map((raw, i) => expandScene(replaceTokens(raw, ctx, scene), i, ctx, range))
 
+  // Frase de apertura propia del estilo elegido, como primera frase del cuento.
+  const opening = STYLE_WORLDS[ctx.style].opening(ctx.name)
+  paragraphs[0] = `${opening} ${paragraphs[0]}`
+
   // 1) Ganar extensión real con escenas adicionales únicas (cada una aparece como máximo una vez).
   if (range.min >= 600) {
     for (const beat of extraBeats(ctx)) {
