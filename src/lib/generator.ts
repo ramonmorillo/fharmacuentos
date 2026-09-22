@@ -1,6 +1,6 @@
 import { PEDAGOGICAL_COMPETENCES } from '../data/options'
 import { buildSceneTexts, COMPETENCE_ACTIONS, pickStyleObject, STYLE_ELEMENTS, type NarrativeContext, type StyleObject } from '../data/narrativeTemplates'
-import { EMOTION_CONTENT, SITUATION_CONTENT, STYLE_WORLDS } from '../data/storyContent'
+import { EMOTION_CONTENT, MESSAGE_CONTENT, SITUATION_CONTENT, STYLE_WORLDS } from '../data/storyContent'
 import type { AgeGroupId, DurationId, GeneratedStory, StoryFormData } from '../types'
 
 const DISCLAIMER =
@@ -38,6 +38,28 @@ function competenceLabel(id: StoryFormData['pedagogicalCompetence']): string { r
 function normalizeEmotion(data: StoryFormData): string { return data.emotion === 'otra' && data.emotionOther.trim() ? data.emotionOther.trim().toLowerCase() : EMOTION_CONTENT[data.emotion].acknowledge }
 function situationText(data: StoryFormData): string { return data.situation === 'otra' && data.situationOther.trim() ? data.situationOther.trim() : SITUATION_CONTENT[data.situation].challenge }
 function capitalizeName(name: string): string { return name.toLocaleLowerCase('es-ES').split(/\s+/).filter(Boolean).map((p) => p.charAt(0).toLocaleUpperCase('es-ES') + p.slice(1)).join(' ') }
+
+/**
+ * Párrafo de cierre que retoma el/los mensaje/s principal/es elegido/s en el formulario
+ * (data.messages), hasta ahora sin ningún efecto en el cuento generado pese a mostrarse como
+ * seleccionable. Usa MESSAGE_CONTENT (data/storyContent.ts), con voz narrativa adaptada al
+ * estilo (3ª persona salvo en "diario", en 1ª persona).
+ */
+function messagesClosing(ctx: NarrativeContext): string | undefined {
+  if (ctx.messages.length === 0) return undefined
+  if (ctx.style === 'diario') {
+    return ctx.messages
+      .map((id, i) => {
+        const sentence = MESSAGE_CONTENT[id].closingDiario
+        const capitalized = sentence.charAt(0).toLocaleUpperCase('es-ES') + sentence.slice(1)
+        return i === 0 ? `${capitalized}.` : `También ${sentence}.`
+      })
+      .join(' ')
+  }
+  const clauses = ctx.messages.map((id) => MESSAGE_CONTENT[id].closing)
+  const joined = clauses.length === 1 ? clauses[0] : `${clauses.slice(0, -1).join(', ')} y ${clauses.at(-1)}`
+  return `Al final, ${ctx.name} ${joined}.`
+}
 
 interface SceneVars { object: StyleObject; place: string; elementsList: string }
 
@@ -226,6 +248,11 @@ function buildNarrative(ctx: NarrativeContext, object: StyleObject, duration: Du
     paragraphs[targetParagraph] += ` ${sentence}`
     added += 1
   }
+
+  // 3) Cierre que retoma el/los mensaje/s principal/es elegido/s, como párrafo final propio.
+  const closing = messagesClosing(ctx)
+  if (closing) paragraphs.push(closing)
+
   return paragraphs
 }
 
@@ -256,7 +283,7 @@ function validateStory(args: { title: string; paragraphs: string[]; activity: st
 export function generateStory(data: StoryFormData): GeneratedStory {
   const name = capitalizeName(data.protagonistName.trim() || 'Protagonista')
   const world = STYLE_WORLDS[data.style]
-  const ctx: NarrativeContext = { name, ageGroup: data.ageGroup, situation: data.situation, situationText: sanitize(situationText(data)), emotion: sanitize(normalizeEmotion(data)), style: data.style, competence: data.pedagogicalCompetence, competenceLabel: competenceLabel(data.pedagogicalCompetence), companion: world.companionName || 'una persona de confianza', extraDetail: data.extraDetails.trim() || undefined }
+  const ctx: NarrativeContext = { name, ageGroup: data.ageGroup, situation: data.situation, situationText: sanitize(situationText(data)), emotion: sanitize(normalizeEmotion(data)), style: data.style, competence: data.pedagogicalCompetence, competenceLabel: competenceLabel(data.pedagogicalCompetence), companion: world.companionName || 'una persona de confianza', extraDetail: data.extraDetails.trim() || undefined, messages: data.messages }
   const requiredElements = STYLE_ELEMENTS[ctx.style].elements
   for (let attempt = 0; attempt < 3; attempt += 1) {
     // El objeto y la combinación de frases se sortean en cada intento (y en cada "Generar nueva

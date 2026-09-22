@@ -1,4 +1,4 @@
-import type { AgeGroupId, PedagogicalCompetenceId, SituationId, StyleId } from '../types'
+import type { AgeGroupId, MessageId, PedagogicalCompetenceId, SituationId, StyleId } from '../types'
 
 export interface NarrativeContext {
   name: string
@@ -11,6 +11,7 @@ export interface NarrativeContext {
   competenceLabel: string
   companion: string
   extraDetail?: string
+  messages: MessageId[]
 }
 
 export interface StyleWorld {
