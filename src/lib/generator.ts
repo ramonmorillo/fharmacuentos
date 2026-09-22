@@ -1,3 +1,4 @@
+import { ACTIVITIES } from '../data/activities'
 import { PEDAGOGICAL_COMPETENCES } from '../data/options'
 import { buildSceneTexts, COMPETENCE_ACTIONS, pickStyleObject, STYLE_ELEMENTS, type NarrativeContext, type StyleObject } from '../data/narrativeTemplates'
 import { EMOTION_CONTENT, MESSAGE_CONTENT, SITUATION_CONTENT, STYLE_WORLDS } from '../data/storyContent'
@@ -40,25 +41,15 @@ function situationText(data: StoryFormData): string { return data.situation === 
 function capitalizeName(name: string): string { return name.toLocaleLowerCase('es-ES').split(/\s+/).filter(Boolean).map((p) => p.charAt(0).toLocaleUpperCase('es-ES') + p.slice(1)).join(' ') }
 
 /**
- * Párrafo de cierre que retoma el/los mensaje/s principal/es elegido/s en el formulario
- * (data.messages), hasta ahora sin ningún efecto en el cuento generado pese a mostrarse como
- * seleccionable. Usa MESSAGE_CONTENT (data/storyContent.ts), con voz narrativa adaptada al
- * estilo (3ª persona salvo en "diario", en 1ª persona).
+ * Actividad final única, sin depender de la edad: quien reciba el cuento a los 4 años y quien lo
+ * reciba a los 17 obtenía siempre la misma instrucción. COMPETENCE_ACTIONS[...].activity se
+ * mantiene intacto (mantiene el vínculo con la competencia elegida); se le añade una actividad
+ * complementaria de ACTIVITIES (data/activities.ts), ya escrita y clasificada por franja de edad,
+ * sin generar redacción pedagógica nueva.
  */
-function messagesClosing(ctx: NarrativeContext): string | undefined {
-  if (ctx.messages.length === 0) return undefined
-  if (ctx.style === 'diario') {
-    return ctx.messages
-      .map((id, i) => {
-        const sentence = MESSAGE_CONTENT[id].closingDiario
-        const capitalized = sentence.charAt(0).toLocaleUpperCase('es-ES') + sentence.slice(1)
-        return i === 0 ? `${capitalized}.` : `También ${sentence}.`
-      })
-      .join(' ')
-  }
-  const clauses = ctx.messages.map((id) => MESSAGE_CONTENT[id].closing)
-  const joined = clauses.length === 1 ? clauses[0] : `${clauses.slice(0, -1).join(', ')} y ${clauses.at(-1)}`
-  return `Al final, ${ctx.name} ${joined}.`
+function ageMatchedActivity(ageGroup: AgeGroupId): string {
+  const matches = ACTIVITIES.filter((a) => a.ageGroups.includes(ageGroup))
+  return matches[Math.floor(Math.random() * matches.length)].text
 }
 
 interface SceneVars { object: StyleObject; place: string; elementsList: string }
@@ -346,7 +337,7 @@ export function generateStory(data: StoryFormData): GeneratedStory {
     const title = `${ctx.name} y ${COMPETENCE_ACTIONS[ctx.competence].artifact}`
     const paragraphs = buildNarrative(ctx, object, data.duration).map(sanitize)
     const competenceContent = COMPETENCE_ACTIONS[ctx.competence]
-    const activity = competenceContent.activity
+    const activity = `${competenceContent.activity} También puedes: ${ageMatchedActivity(ctx.ageGroup)}`
     const familyQuestion = competenceContent.question
     const parentMessage = competenceContent.caregiver
     const validation = validateStory({ title, paragraphs, activity, familyQuestion, parentMessage, requiredElements, context: ctx, duration: data.duration })
