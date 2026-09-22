@@ -1,3 +1,4 @@
+import { ACTIVITIES } from '../data/activities'
 import { PEDAGOGICAL_COMPETENCES } from '../data/options'
 import { buildSceneTexts, COMPETENCE_ACTIONS, pickStyleObject, STYLE_ELEMENTS, type NarrativeContext, type StyleObject } from '../data/narrativeTemplates'
 import { EMOTION_CONTENT, SITUATION_CONTENT, STYLE_WORLDS } from '../data/storyContent'
@@ -38,6 +39,18 @@ function competenceLabel(id: StoryFormData['pedagogicalCompetence']): string { r
 function normalizeEmotion(data: StoryFormData): string { return data.emotion === 'otra' && data.emotionOther.trim() ? data.emotionOther.trim().toLowerCase() : EMOTION_CONTENT[data.emotion].acknowledge }
 function situationText(data: StoryFormData): string { return data.situation === 'otra' && data.situationOther.trim() ? data.situationOther.trim() : SITUATION_CONTENT[data.situation].challenge }
 function capitalizeName(name: string): string { return name.toLocaleLowerCase('es-ES').split(/\s+/).filter(Boolean).map((p) => p.charAt(0).toLocaleUpperCase('es-ES') + p.slice(1)).join(' ') }
+
+/**
+ * Actividad final única, sin depender de la edad: quien reciba el cuento a los 4 años y quien lo
+ * reciba a los 17 obtenía siempre la misma instrucción. COMPETENCE_ACTIONS[...].activity se
+ * mantiene intacto (mantiene el vínculo con la competencia elegida); se le añade una actividad
+ * complementaria de ACTIVITIES (data/activities.ts), ya escrita y clasificada por franja de edad,
+ * sin generar redacción pedagógica nueva.
+ */
+function ageMatchedActivity(ageGroup: AgeGroupId): string {
+  const matches = ACTIVITIES.filter((a) => a.ageGroups.includes(ageGroup))
+  return matches[Math.floor(Math.random() * matches.length)].text
+}
 
 interface SceneVars { object: StyleObject; place: string; elementsList: string }
 
@@ -266,7 +279,7 @@ export function generateStory(data: StoryFormData): GeneratedStory {
     const title = `${ctx.name} y ${COMPETENCE_ACTIONS[ctx.competence].artifact}`
     const paragraphs = buildNarrative(ctx, object, data.duration).map(sanitize)
     const competenceContent = COMPETENCE_ACTIONS[ctx.competence]
-    const activity = competenceContent.activity
+    const activity = `${competenceContent.activity} También puedes: ${ageMatchedActivity(ctx.ageGroup)}`
     const familyQuestion = competenceContent.question
     const parentMessage = competenceContent.caregiver
     const validation = validateStory({ title, paragraphs, activity, familyQuestion, parentMessage, requiredElements, context: ctx, duration: data.duration })
