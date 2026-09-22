@@ -65,22 +65,32 @@ function replaceTokens(text: string, ctx: NarrativeContext, scene?: SceneVars): 
 }
 
 /**
- * Recortar el mínimo de palabras al techo de la edad (age.max) deja "estándar" y "desarrollado"
- * con el mismo objetivo mínimo para el grupo 3-5 años (ambos superan los 600 palabras del techo,
- * así que los dos se recortan al mismo valor): la duración elegida deja de tener efecto real. Se
- * define una progresión explícita para ese grupo, dentro del mismo techo que ya existía, en vez
- * de recortar cada duración de forma independiente.
+ * Objetivo mínimo de palabras por combinación edad × duración, calibrado de forma explícita.
+ * Antes se derivaba combinando DEPTH_WORD_RANGES y AGE_WORD_RANGES con Math.min(), lo que daba
+ * dos problemas confirmados por ejecución repetida del generador:
+ * 1) Para 3-5 años, "estándar" y "desarrollado" colisionaban en el mismo valor (ambos recortados
+ *    al mismo techo de edad, 600): la duración elegida no tenía ningún efecto real.
+ * 2) Para 6-8 años en adelante, "estándar" y sobre todo "desarrollado" pedían más palabras
+ *    (800-1500) de las que el contenido de relleno (REFLECTION_POOL + extraBeats, de tamaño fijo
+ *    y sin permitir repetición) podía entregar de forma fiable: verificado con 20 repeticiones
+ *    por combinación, "desarrollado" se quedaba hasta 295 palabras por debajo de su objetivo en
+ *    13-15/16-17 años, de forma sistemática, no ocasional.
+ * En vez de mantener fórmulas cuya interacción no era transparente, se fija aquí un valor por
+ * combinación, elegido por debajo del mínimo observado en esas pruebas (nunca por debajo del
+ * "mini" de la misma edad, para conservar la progresión mini < estándar < desarrollado).
  */
-const AGE_DURATION_MIN_OVERRIDE: Partial<Record<AgeGroupId, Record<DurationId, number>>> = {
+const AGE_DURATION_MIN: Record<AgeGroupId, Record<DurationId, number>> = {
   '3-5': { mini: 400, estandar: 500, desarrollado: 600 },
+  '6-8': { mini: 400, estandar: 700, desarrollado: 800 },
+  '9-12': { mini: 400, estandar: 700, desarrollado: 800 },
+  '13-15': { mini: 400, estandar: 750, desarrollado: 840 },
+  '16-17': { mini: 400, estandar: 750, desarrollado: 840 },
 }
 
 function targetRange(ageGroup: AgeGroupId, duration: DurationId): { min: number; max: number } {
-  const depth = DEPTH_WORD_RANGES[duration]
-  const age = AGE_WORD_RANGES[ageGroup]
-  const min = AGE_DURATION_MIN_OVERRIDE[ageGroup]?.[duration] ?? Math.min(depth.min, age.max)
-  const max = Math.min(depth.max, age.max)
-  return { min, max: Math.max(max, min) }
+  const min = AGE_DURATION_MIN[ageGroup][duration]
+  const max = Math.max(Math.min(DEPTH_WORD_RANGES[duration].max, AGE_WORD_RANGES[ageGroup].max), min)
+  return { min, max }
 }
 
 type AgeBand = 'infantil' | 'media' | 'adolescente'
@@ -152,16 +162,22 @@ const SCENE_CLOSINGS: Record<AgeBand, string[]> = {
   ],
 }
 
-// 500 en vez de 600: es el nuevo objetivo mínimo de "estándar" para 3-5 años (ver
-// AGE_DURATION_MIN_OVERRIDE). Con el umbral en 600, ese objetivo caía en el tramo "sin expandir",
-// que no genera suficiente texto para alcanzar ni siquiera su propio mínimo. Bajar el umbral a
-// 500 no cambia nada para el resto de combinaciones edad×duración: sus objetivos ya están o muy
-// por debajo (mini, siempre 400) o muy por encima (el resto, ≥600) de este límite.
-function expandScene(scene: string, index: number, ctx: NarrativeContext, target: { min: number }): string {
+/**
+ * Antes decidía cuánto enriquecer cada escena según si el objetivo de palabras (un número)
+ * superaba ciertos umbrales (500, 900). Eso acoplaba el nivel de enriquecimiento a los valores
+ * concretos elegidos para AGE_DURATION_MIN: cualquier ajuste de esos números podía, sin querer,
+ * mover una combinación a un tramo de enriquecimiento distinto (más pobre o más rico) del que se
+ * pretendía, e invalidar el propio ajuste. Ahora se basa directamente en la duración elegida, que
+ * es lo que realmente representa cada tramo: "mini" no enriquece, "estándar" añade un detalle,
+ * "desarrollado" añade detalle y cierre. Excepción: en 3-5 años (banda "infantil") "desarrollado"
+ * se queda también en el tramo de un detalle, para no alargar el cuento por encima de lo adecuado
+ * a esa edad (ver el techo de AGE_WORD_RANGES para ese grupo).
+ */
+function expandScene(scene: string, index: number, ctx: NarrativeContext, duration: DurationId): string {
   const band = ageBand(ctx.ageGroup)
   const details = SCENE_DETAILS[band]
-  if (target.min < 500) return scene
-  if (target.min < 900) return `${scene} ${details[index % details.length]}`
+  if (duration === 'mini') return scene
+  if (duration === 'estandar' || band === 'infantil') return `${scene} ${details[index % details.length]}`
   const closings = SCENE_CLOSINGS[band]
   return `${scene} ${details[index % details.length]} ${closings[index % closings.length]}`
 }
@@ -223,12 +239,12 @@ function buildNarrative(ctx: NarrativeContext, object: StyleObject, duration: Du
   const styleData = STYLE_ELEMENTS[ctx.style]
   const scene: SceneVars = { object, place: styleData.place, elementsList: styleData.elements.slice(0, 4).join(', ') }
   const rawScenes = buildSceneTexts(ctx.style)
-  const paragraphs = rawScenes.map((raw, i) => expandScene(replaceTokens(raw, ctx, scene), i, ctx, range))
+  const paragraphs = rawScenes.map((raw, i) => expandScene(replaceTokens(raw, ctx, scene), i, ctx, duration))
 
   // 1) Ganar extensión real con escenas adicionales únicas (cada una aparece como máximo una vez).
-  // Mismo umbral que expandScene (ver comentario allí): 500 en vez de 600 para que el nuevo
-  // objetivo de "estándar" en 3-5 años pueda alcanzarse de verdad.
-  if (range.min >= 500) {
+  // Igual que en expandScene: se basa en la duración elegida, no en el objetivo numérico, para
+  // que ajustar AGE_DURATION_MIN no pueda desactivar esta fase sin querer.
+  if (duration !== 'mini') {
     for (const beat of extraBeats(ctx)) {
       if (wordCount(paragraphs.join(' ')) >= range.min) break
       paragraphs.push(replaceTokens(beat, ctx))
