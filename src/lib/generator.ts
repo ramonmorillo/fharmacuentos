@@ -256,7 +256,7 @@ function validateStory(args: { title: string; paragraphs: string[]; activity: st
 export function generateStory(data: StoryFormData): GeneratedStory {
   const name = capitalizeName(data.protagonistName.trim() || 'Protagonista')
   const world = STYLE_WORLDS[data.style]
-  const ctx: NarrativeContext = { name, ageGroup: data.ageGroup, situation: data.situation, situationText: sanitize(situationText(data)), emotion: normalizeEmotion(data), style: data.style, competence: data.pedagogicalCompetence, competenceLabel: competenceLabel(data.pedagogicalCompetence), companion: world.companionName || 'una persona de confianza', extraDetail: data.extraDetails.trim() || undefined }
+  const ctx: NarrativeContext = { name, ageGroup: data.ageGroup, situation: data.situation, situationText: sanitize(situationText(data)), emotion: sanitize(normalizeEmotion(data)), style: data.style, competence: data.pedagogicalCompetence, competenceLabel: competenceLabel(data.pedagogicalCompetence), companion: world.companionName || 'una persona de confianza', extraDetail: data.extraDetails.trim() || undefined }
   const requiredElements = STYLE_ELEMENTS[ctx.style].elements
   for (let attempt = 0; attempt < 3; attempt += 1) {
     // El objeto y la combinación de frases se sortean en cada intento (y en cada "Generar nueva
