@@ -94,6 +94,13 @@ export interface GeneratedStory {
   familyQuestion: string
   parentMessage?: string
   disclaimer: string
+  /**
+   * Motivos por los que este cuento no superó todas las comprobaciones automáticas de
+   * calidad (extensión, lenguaje clínico, coherencia narrativa...) tras los reintentos
+   * disponibles. Presente solo cuando la validación falló; nunca debe imprimirse ni
+   * exportarse, solo mostrarse al farmacéutico antes de entregar el cuento.
+   */
+  qualityWarnings?: string[]
 }
 
 export interface OptionMeta<T extends string> {
