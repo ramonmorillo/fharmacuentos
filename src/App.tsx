@@ -6,6 +6,7 @@ import { StoryForm } from './components/StoryForm'
 import { StoryResult } from './components/StoryResult'
 import { createDefaultFormData } from './data/defaultFormData'
 import { generateStory } from './lib/generator'
+import { createCover, nextCoverRecipe, clearCoverHistory, type CoverState } from './cover-engine'
 import type { StoryTemplate } from './data/templates'
 import type { GeneratedStory, StoryFormData } from './types'
 import { APP_AUTHOR, APP_CONTACT_EMAIL, APP_CREATION_YEAR, APP_VERSION } from './data/appInfo'
@@ -16,6 +17,7 @@ function App() {
   const [view, setView] = useState<View>('welcome')
   const [formData, setFormData] = useState<StoryFormData>(createDefaultFormData)
   const [story, setStory] = useState<GeneratedStory | null>(null)
+  const [cover, setCover] = useState<CoverState | null>(null)
 
   const handleUseTemplate = (template: StoryTemplate) => {
     setFormData((prev) => ({
@@ -29,17 +31,23 @@ function App() {
 
   const handleGenerate = (data: StoryFormData) => {
     setFormData(data)
-    setStory(generateStory(data))
+    const generated = generateStory(data)
+    setStory(generated)
+    setCover(createCover(generated, data))
     setView('result')
   }
 
   const handleRegenerate = () => {
-    setStory(generateStory(formData))
+    const generated = generateStory(formData)
+    setStory(generated)
+    setCover(createCover(generated, formData))
   }
 
   const handleClear = () => {
     setFormData(createDefaultFormData())
     setStory(null)
+    setCover(null)
+    clearCoverHistory()
     setView('welcome')
   }
 
@@ -63,6 +71,10 @@ function App() {
         {view === 'result' && story && (
           <StoryResult
             story={story}
+            cover={cover}
+            onAnotherCover={() => {
+              if (cover) setCover({ ...cover, recipe: nextCoverRecipe(cover.spec, cover.recipe) })
+            }}
             onRegenerate={handleRegenerate}
             onClear={handleClear}
             onBackToForm={() => setView('form')}
@@ -72,7 +84,7 @@ function App() {
       <footer className="no-print text-center text-xs text-navy-400 py-6 border-t border-navy-800 mt-6 space-y-1">
         <p>
           FHarmacuentos no almacena datos en servidor. Toda la información introducida se pierde al
-          recargar o limpiar la página.
+          recargar o limpiar la página. Solo se conservan semillas numéricas de portadas para evitar repeticiones.
         </p>
         <p>
           © {APP_CREATION_YEAR} {APP_AUTHOR}. Todos los derechos reservados. · FHarmacuentos v{APP_VERSION}{' '}
