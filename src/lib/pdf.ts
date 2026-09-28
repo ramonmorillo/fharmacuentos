@@ -1,5 +1,7 @@
 import { jsPDF } from 'jspdf'
 import type { GeneratedStory } from '../types'
+import type { CoverState } from '../cover-engine/types'
+import { drawCoverPdf } from '../cover-engine/pdf'
 
 const MARGIN = 20
 const PAGE_WIDTH = 210
@@ -13,8 +15,12 @@ export interface PdfDocumentMeta {
   generatedAt?: Date
 }
 
-export function downloadStoryPdf(story: GeneratedStory, meta: PdfDocumentMeta = {}) {
+export function buildStoryPdf(story: GeneratedStory, meta: PdfDocumentMeta = {}, cover?: CoverState) {
   const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+  if (cover) {
+    drawCoverPdf(doc, cover, story.title)
+    doc.addPage()
+  }
   let y = MARGIN
 
   const ensureSpace = (needed: number) => {
@@ -102,6 +108,11 @@ export function downloadStoryPdf(story: GeneratedStory, meta: PdfDocumentMeta = 
   addText('Aviso de uso responsable', 10, 'bold', 1)
   addText(story.disclaimer, 9, 'italic', 0)
 
+  return doc
+}
+
+export function downloadStoryPdf(story: GeneratedStory, meta: PdfDocumentMeta = {}, cover?: CoverState) {
+  const doc = buildStoryPdf(story, meta, cover)
   const safeTitle = story.title.toLowerCase().replace(/[^a-z0-9áéíóúñü\s-]/gi, '').trim().replace(/\s+/g, '-')
   doc.save(`fharmacuentos-${safeTitle || 'cuento'}.pdf`)
 }

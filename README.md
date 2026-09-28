@@ -41,6 +41,10 @@ A partir de un formulario breve, FHarmacuentos genera un cuento con:
 El resultado se muestra en una pantalla limpia y editable, con botones para copiar, imprimir,
 descargar en PDF, generar una nueva versión o limpiar todos los datos.
 
+Ahora incluye **Fharmacuentos Cover Engine**: portadas vectoriales procedurales adaptadas a la edad,
+botón «↻ Otra portada» independiente del cuento y primera página A4 en el PDF. Todo se ejecuta
+localmente, sin APIs ni nuevas dependencias. Consulta [arquitectura, catálogo, pruebas y licencias](docs/cover-engine.md).
+
 También incluye una **biblioteca de plantillas** con 10 puntos de partida ya pensados para
 situaciones frecuentes (por ejemplo, "El dragón que aprendió su rutina" o "La mochila de las
 preguntas"), que precargan edad, situación y estilo en el formulario.
@@ -59,7 +63,9 @@ preguntas"), que precargan edad, situación y estilo en el formulario.
   antes de entregarlo al paciente o familia."*
 - **No hay backend ni base de datos.** La aplicación es 100 % estática y todo el estado vive en la
   memoria del navegador: recargar la página o pulsar "Limpiar datos" elimina el contenido generado.
-  No se usa `localStorage` ni `sessionStorage` para el contenido de los cuentos.
+  No se usa `localStorage` ni `sessionStorage` para el contenido de los cuentos. Cover Engine guarda
+  únicamente semillas numéricas y claves visuales acotadas en `localStorage`, sin texto ni datos
+  personales o clínicos. «Limpiar datos» elimina también ese historial.
 - El modo con IA está **deshabilitado por defecto** y preparado solo como punto de extensión futuro
   (ver más abajo).
 
@@ -87,6 +93,7 @@ Otros comandos disponibles:
 npm run build     # compila TypeScript y genera la build de producción en dist/
 npm run preview   # sirve la build de producción localmente
 npm run lint      # analiza el código con oxlint
+npm test          # verifica Cover Engine y la regresión del generador
 ```
 
 ## Estructura del proyecto

@@ -3,9 +3,13 @@ import type { GeneratedStory } from '../types'
 import { downloadStoryPdf } from '../lib/pdf'
 import { DisclaimerBanner } from './DisclaimerBanner'
 import { APP_AUTHOR, APP_VERSION } from '../data/appInfo'
+import { CoverPreview } from '../cover-engine/CoverPreview'
+import type { CoverState } from '../cover-engine'
 
 interface StoryResultProps {
   story: GeneratedStory
+  cover: CoverState | null
+  onAnotherCover: () => void
   onRegenerate: () => void
   onClear: () => void
   onBackToForm: () => void
@@ -87,7 +91,7 @@ function SparkleIcon({ className }: { className?: string }) {
   )
 }
 
-export function StoryResult({ story, onRegenerate, onClear, onBackToForm }: StoryResultProps) {
+export function StoryResult({ story, cover, onAnotherCover, onRegenerate, onClear, onBackToForm }: StoryResultProps) {
   const [editable, setEditable] = useState<EditableStory>(() => toEditable(story))
   const [generatedAt, setGeneratedAt] = useState<Date>(() => new Date())
   const [meta, setMeta] = useState<DocumentMeta>({ hospitalName: '', pharmacistName: '' })
@@ -123,7 +127,7 @@ export function StoryResult({ story, onRegenerate, onClear, onBackToForm }: Stor
       hospitalName: meta.hospitalName.trim(),
       pharmacistName: meta.pharmacistName.trim(),
       generatedAt,
-    })
+    }, cover ?? undefined)
 
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 py-10">
@@ -144,10 +148,16 @@ export function StoryResult({ story, onRegenerate, onClear, onBackToForm }: Stor
         </div>
       )}
 
+      {cover && <div className="no-print flex items-center justify-between gap-3 mb-4">
+        <p className="text-sm text-navy-200">La portada de tu historia</p>
+        <button onClick={onAnotherCover} className="px-4 py-2 rounded-lg bg-brand-700 text-white text-sm font-medium hover:bg-brand-600" aria-label="Otra portada para el mismo cuento">↻ Otra portada</button>
+      </div>}
+
       <div
         id="printable-story"
         className="bg-white rounded-2xl border border-brand-100 shadow-2xl shadow-black/40 overflow-hidden"
       >
+        {cover && <CoverPreview cover={cover} title={currentStory.title} />}
         {/* Cabecera del documento: centro, profesional y fecha */}
         <div className="bg-brand-700 text-brand-50 px-6 sm:px-8 py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
